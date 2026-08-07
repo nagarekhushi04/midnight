@@ -1,0 +1,62 @@
+pragma language_version >= 0.23;
+
+import CompactStandardLibrary;
+
+// PUBLIC vs PRIVATE DATA SPLIT
+// 
+// PUBLIC DATA (Visible on-chain to everyone):
+// - lastCheckIn: The simulated time/block of the owner's last activity.
+// - timeout: The duration of inactivity required before the will can be executed.
+// - beneficiaryCommitment: A hash/commitment hiding the true beneficiary's identity.
+// - isClaimed: A boolean status of the inheritance.
+// - finalBeneficiary: The revealed beneficiary address after claiming.
+//
+// PRIVATE DATA (Witness inputs, never revealed unless explicitly disclosed):
+// - beneficiaryAddr: The private address/identity of the beneficiary claiming the will.
+// - secretPasscode: A private salt/passcode used to verify the beneficiaryCommitment.
+//
+// DISCLOSE:
+// - The beneficiaryAddr is explicitly disclosed to the public ledger upon a successful claim,
+//   proving their right to the inheritance. The secretPasscode remains completely private.
+
+export ledger lastCheckIn: Uint<64>;
+export ledger timeout: Uint<64>;
+export ledger isClaimed: Boolean;
+export ledger finalBeneficiary: Opaque<"string">;
+export ledger beneficiaryCommitment: Opaque<"string">;
+
+export circuit constructor(
+    initialTimeout: Uint<64>,
+    hiddenBeneficiaryHash: Opaque<"string">,
+    currentTime: Uint<64>
+) {
+    timeout = initialTimeout;
+    beneficiaryCommitment = hiddenBeneficiaryHash;
+    lastCheckIn = currentTime;
+    isClaimed = false;
+    finalBeneficiary = hiddenBeneficiaryHash;
+}
+
+export circuit checkIn(currentTime: Uint<64>): [] {
+    assert !isClaimed "Cannot check in after inheritance is claimed";
+    assert currentTime > lastCheckIn "Current time must be strictly greater than last check-in";
+    
+    lastCheckIn = currentTime;
+}
+
+export circuit claim(
+    currentTime: Uint<64>, 
+    beneficiaryAddr: Opaque<"string">, 
+    secretPasscode: Opaque<"string">
+): [] {
+    assert !isClaimed "Inheritance already claimed";
+    
+    // Check if the timeout has passed
+    assert currentTime >= (lastCheckIn + timeout) "Inactivity period has not been met";
+    
+    // Verify the commitment
+    assert secretPasscode == beneficiaryCommitment "Invalid passcode";
+    
+    isClaimed = true;
+    finalBeneficiary = disclose(beneficiaryAddr);
+}
