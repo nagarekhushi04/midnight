@@ -1,0 +1,12 @@
+{
+  "timestamp": "2026-08-08T17:31:33.099Z",
+  "steps": {
+    "indexerConnectivity": "FAIL",
+    "proofServerConnectivity": "PASS",
+    "contractLogicTests": "PASS",
+    "zkProofGeneration": "PASS",
+    "stateRead": "PASS",
+    "contractConnection": "PASS"
+  },
+  "passed": true
+}
