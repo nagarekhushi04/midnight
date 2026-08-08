@@ -1,0 +1,8 @@
+{
+  "version": 3,
+  "file": "index.js",
+  "sourceRoot": "../../../../",
+  "sources": ["contracts/Inheritance.compact"],
+  "names": [],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;EAAA;;;;;;;;;;MA2BA,AAAA,KAaC;;;;;cAZG,gBAAwB;cACxB,uBAAgC;cAChC,aAAqB;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;yCAFrB,gBAAwB,+BACxB,uBAAgC,+BAChC,aAAqB;;;;;;;;;uCAFrB,gBAAwB;uCACxB,uBAAgC;uCAChC,aAAqB;;;OAUxB;MAED,AAAA,OAKC;;;;;cALsB,aAAqB;;;;;;;;;;;;;;;;;;yCAArB,aAAqB;;;;;;;;;yCAArB,aAAqB;;;OAK3C;MAED,AAAA,KAeC;;;;;cAdG,aAAqB;cACrB,iBAA0B;cAC1B,gBAAyB;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;yCAFzB,aAAqB,+BACrB,iBAA0B,+BAC1B,gBAAyB;;;;;;;;;uCAFzB,aAAqB;uCACrB,iBAA0B;uCAC1B,gBAAyB;;;OAY5B;;;;;;;;;;;;GACA;EAjED;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;IAqBA;;;;;;;;;yEAAoC;IACpC;;;;;;;;;yEAAgC;IAChC;;;;;;;;;yEAAiC;IACjC;;;;;;;;;yEAA0C;IAC1C;;;;;;;;;yEAA+C;;;;;;;GAwC9C;EAtCD,AAAA,QAaC;;WAZG,gBAAwB;WACxB,uBAAgC;WAChC,aAAqB;;kEAGd;;;;;;;;;;;uIAAO;;;IAEd;;;;;;;2HAAmB,gBAAc;;yEAA1B;IACP;;;;;;;2HAAiC,uBAAqB;;yEAAjC;IACrB;;;;;;;2HAAuB,aAAW;;yEAAvB;IACX;;;;;;;;;yEAAS;IACT;;;;;;;2HAA4B,uBAAqB;;yEAAjC;;GACnB;EAED,AAAA,UAKC,4BALsB,aAAqB;qDAChC;;;;;;;;;;;0HAAS;;4BACV,aAAW;;oDAAG;;;;;;;;;;;yHAAW;;IAEhC;;;;;;;2HAAuB,aAAW;;yEAAvB;;GACd;EAED,AAAA,QAeC;;WAdG,aAAqB;WACrB,iBAA0B;WAC1B,gBAAyB;;qDAEjB;;;;;;;;;;;0HAAS;;4BAGV,aAAW;;oDAAK;;;;;;;;;;;yHAAW;;oDAAG;;;;;;;;;;;yHAAO;;0CAGrC,gBAAc;kEAAI;;;;;;;;;;;uIAAqB;;IAE9C;;;;;;;;;yEAAS;IACT;;;;;;;2HAA4B,iBAAe;;yEAA3B;;GACnB;;;;;;;;;;;;;;;;;;;;;;;;IA3CD;qCAAA;;;;;;;;;;;0GAAoC;KAAA;IACpC;qCAAA;;;;;;;;;;;0GAAgC;KAAA;IAChC;qCAAA;;;;;;;;;;;0GAAiC;KAAA;IACjC;qCAAA;;;;;;;;;;;0GAA0C;KAAA;IAC1C;qCAAA;;;;;;;;;;;0GAA+C;KAAA;;;;;;;;;;"
+}

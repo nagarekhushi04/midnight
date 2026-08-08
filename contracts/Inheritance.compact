@@ -22,40 +22,43 @@ import CompactStandardLibrary;
 export ledger lastCheckIn: Uint<64>;
 export ledger timeout: Uint<64>;
 export ledger isClaimed: Boolean;
-export ledger finalBeneficiary: Opaque<"string">;
-export ledger beneficiaryCommitment: Opaque<"string">;
+export ledger finalBeneficiary: Bytes<32>;
+export ledger beneficiaryCommitment: Bytes<32>;
 
-export circuit constructor(
+export circuit setup(
     initialTimeout: Uint<64>,
-    hiddenBeneficiaryHash: Opaque<"string">,
+    hiddenBeneficiaryHash: Bytes<32>,
     currentTime: Uint<64>
-) {
-    timeout = initialTimeout;
-    beneficiaryCommitment = hiddenBeneficiaryHash;
-    lastCheckIn = currentTime;
+): [] {
+    // Only allow setup if not already set up
+    assert(timeout == 0, "Already set up");
+
+    timeout = disclose(initialTimeout);
+    beneficiaryCommitment = disclose(hiddenBeneficiaryHash);
+    lastCheckIn = disclose(currentTime);
     isClaimed = false;
-    finalBeneficiary = hiddenBeneficiaryHash;
+    finalBeneficiary = disclose(hiddenBeneficiaryHash);
 }
 
 export circuit checkIn(currentTime: Uint<64>): [] {
-    assert !isClaimed "Cannot check in after inheritance is claimed";
-    assert currentTime > lastCheckIn "Current time must be strictly greater than last check-in";
+    assert(!isClaimed, "Cannot check in after inheritance is claimed");
+    assert(currentTime > lastCheckIn, "Current time must be strictly greater than last check-in");
     
-    lastCheckIn = currentTime;
+    lastCheckIn = disclose(currentTime);
 }
 
 export circuit claim(
     currentTime: Uint<64>, 
-    beneficiaryAddr: Opaque<"string">, 
-    secretPasscode: Opaque<"string">
+    beneficiaryAddr: Bytes<32>, 
+    secretPasscode: Bytes<32>
 ): [] {
-    assert !isClaimed "Inheritance already claimed";
+    assert(!isClaimed, "Inheritance already claimed");
     
     // Check if the timeout has passed
-    assert currentTime >= (lastCheckIn + timeout) "Inactivity period has not been met";
+    assert(currentTime >= (lastCheckIn + timeout), "Inactivity period has not been met");
     
-    // Verify the commitment
-    assert secretPasscode == beneficiaryCommitment "Invalid passcode";
+    // Verify the commitment without disclosing secretPasscode
+    assert(secretPasscode == beneficiaryCommitment, "Invalid passcode");
     
     isClaimed = true;
     finalBeneficiary = disclose(beneficiaryAddr);
