@@ -66,6 +66,16 @@ Start the frontend interface to interact with the dApp via your browser:
 npm run frontend:dev
 ```
 
+## 🌍 Local Deployment Hashes
+
+The application has been successfully tested and verified locally. The deployed contract references are as follows:
+
+- **Network**: `undeployed` (Local Midnight Devnet)
+- **Deployed Contract Address**: `370123c62a5b7019c07e45280bbe61bdfb174cc297426f2b47491c1bf0a885fc`
+- **Deployer Identity**: `mn_addr_undeployed1h3ssm5ru2t6eqy4g3she78zlxn96e36ms6pq996aduvmateh9p9sk96u7s`
+
+This contract is locked to the devnet environments configuration.
+
 ## 🏗 Architecture
 
 - **`contracts/Inheritance.compact`**: The core Zero-Knowledge smart contract written in Compact.
