@@ -76,6 +76,34 @@ The application has been successfully tested and verified locally. The deployed 
 
 This contract is locked to the devnet environments configuration.
 
+## 🌐 Vercel Deployment
+
+To deploy your Midnight Legacy frontend to Vercel, you need to configure the project settings to point to the correct directory and framework, and supply the environment variables.
+
+### 1. Project Configuration in Vercel
+When you import your GitHub repository into Vercel, configure the following settings:
+- **Root Directory**: `frontend`
+- **Framework Preset**: `Vite` 
+- **Build Command**: `npm run build`
+- **Output Directory**: `dist`
+
+### 2. Environment Variables 
+In the Vercel deployment settings, expand the **Environment Variables** section and paste the following block. Vercel will automatically parse them into individual keys:
+
+```text
+VITE_NETWORK=preview
+VITE_CONTRACT_ADDRESS=370123c62a5b7019c07e45280bbe61bdfb174cc297426f2b47491c1bf0a885fc
+VITE_INDEXER_URL=https://indexer.preview.midnight.network/api/v4/graphql
+```
+
+## 📸 Deployment Evidence
+
+### Successful Compile Output (Circuits Listed)
+![Compile Output Screenshot](docs/compile-output.png)
+
+### Contract Deployed with Address Shown
+![Contract Deployed Screenshot](docs/deploy-output.png)
+
 ## 🏗 Architecture
 
 - **`contracts/Inheritance.compact`**: The core Zero-Knowledge smart contract written in Compact.
