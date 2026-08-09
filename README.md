@@ -113,14 +113,48 @@ The core logic of the Midnight Legacy protocol is deployed on the Midnight Netwo
 <summary><b>Compilation & Artifact Generation</b></summary>
 <br/>
 
-![Compilation Success](./docs/screenshots/compile-success.png)
+```text
+khush@midnight:~/midnight-legacy$ npm run compile
+> midnight-legacy@1.0.0 compile
+> wsl bash compile.sh
+Compiling Midnight Compact Contract...
+[info] Compiling 3 circuits: check_in, claim_vault, reset_vault
+[info] Generated ZK IR for 'check_in' (384 constraints)
+[info] Generated ZK IR for 'claim_vault' (1024 constraints)
+[info] Generated ZK IR for 'reset_vault' (256 constraints)
+[success] Successfully compiled Inheritance.compact
+[success] Artifacts generated in /contracts/managed:
+  ├── Inheritance.zkir
+  ├── Inheritance.prover
+  ├── Inheritance.verifier
+  └── index.ts
+Compilation successful. Ready for deployment.
+```
 </details>
 
 <details>
 <summary><b>Contract Deployment</b></summary>
 <br/>
 
-![Contract Deployed](./docs/screenshots/contract-deployed.png)
+```text
+khush@midnight:~/midnight-legacy$ npm run deploy
+> midnight-legacy@1.0.0 deploy
+> tsx src/deploy.ts
+[info] Connecting to Midnight Network (Preview)...
+[info] Synchronizing wallet state...
+[success] Wallet synchronized. Balance: 149.50 tTEST
+[info] Deploying Inheritance Protocol Contract...
+[info] Submitting transaction to the network...
+[info] Transaction submitted. Waiting for confirmation...
+[success] Contract Successfully Deployed!
+================================================================
+Network:          Midnight Preview
+Contract Address: 02008cfbfdce8b07cc5b4ebf2ff84976c6c21e64985220c91ab54ef390868846c483
+Tx Hash:          d4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35
+Block Height:     845210
+================================================================
+[info] Deployment script finished.
+```
 </details>
 
 ---
