@@ -1,19 +1,27 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { nodePolyfills } from 'vite-plugin-node-polyfills'
+import wasm from 'vite-plugin-wasm'
+import topLevelAwait from 'vite-plugin-top-level-await'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    wasm(),
+    topLevelAwait(),
+    nodePolyfills({
+      globals: {
+        Buffer: true,
+        global: true,
+        process: true,
+      },
+    }),
+  ],
   optimizeDeps: {
-    exclude: [
-      '@midnight-ntwrk/midnight-js-contracts',
-      '@midnight-ntwrk/midnight-js-http-client-proof-provider',
-      '@midnight-ntwrk/midnight-js-indexer-public-data-provider',
-      '@midnight-ntwrk/midnight-js-protocol',
-      '@midnight-ntwrk/midnight-js-types',
-      '@midnight-ntwrk/midnight-js-utils',
-      '@midnight-ntwrk/ledger-v8',
-      '@midnight-ntwrk/onchain-runtime-v8'
+    include: [
+      'cross-fetch',
+      'fetch-retry'
     ]
   },
   build: {
