@@ -99,33 +99,33 @@ The core logic of the Midnight Legacy protocol is deployed on the Midnight Netwo
 <summary><b>Landing Page</b></summary>
 <br/>
 
-![Landing Page](c:\Users\khush\OneDrive\Pictures\Screenshots\Screenshot 2026-08-09 144855.png)
-</details>
+<img width="1920" height="1080" alt="Screenshot 2026-08-09 150241" src="https://github.com/user-attachments/assets/13eae725-48dd-43a6-8bcf-ccf9d705474a" />
+
 
 <details>
 <summary><b>Owner Check-In & Claim Vault</b></summary>
 <br/>
 
-![Owner Check-In & Claim Vault](c:\Users\khush\OneDrive\Pictures\Screenshots\Screenshot 2026-08-09 144805.png)
-</details>
+<img width="1920" height="1080" alt="Screenshot 2026-08-09 144842" src="https://github.com/user-attachments/assets/8e766e3f-fcd5-485f-9519-f3dab1c061b8" />
+
 
 <details>
 <summary><b>ZK Proof Claim Form & Inputs</b></summary>
 <br/>
 
-![ZK Proof Claim Form](c:\Users\khush\OneDrive\Pictures\Screenshots\Screenshot 2026-08-09 144818.png)
-</details>
+<img width="1920" height="1080" alt="Screenshot 2026-08-09 144805" src="https://github.com/user-attachments/assets/a8a5820f-94ec-48ce-a139-91610269729a" />
 
 <details>
 <summary><b>Graceful Error Handling & Validation</b></summary>
 <br/>
+<img width="1920" height="1080" alt="Screenshot 2026-08-09 150241" src="https://github.com/user-attachments/assets/f48dbd0f-c073-4068-b4cd-864dc8c5ddf3" />
 
-![Error Handling](c:\Users\khush\OneDrive\Pictures\Screenshots\Screenshot 2026-08-09 144840.png)
-</details>
 
 <details>
 <summary><b>Compilation & Artifact Generation</b></summary>
 <br/>
+<img width="701" height="397" alt="Screenshot 2026-08-09 150205" src="https://github.com/user-attachments/assets/27ade6c3-bcec-4125-8e9f-5fb23c1dd177" />
+<img width="901" height="477" alt="Screenshot 2026-08-09 150221" src="https://github.com/user-attachments/assets/a092aadf-318e-406f-8d99-ddef18c612fb" />
 
 ```text
 khush@midnight:~/midnight-legacy$ npm run compile
