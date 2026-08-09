@@ -1,13 +1,186 @@
-# Midnight Legacy – Zero-Knowledge Inactivity Will & Inheritance Protocol
+<div align="center">
+  <img src="https://img.shields.io/badge/Midnight-Network-blueviolet?style=for-the-badge&logo=blockchain" alt="Midnight Network" />
+  <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React" />
+  <img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/Vite-B73BFE?style=for-the-badge&logo=vite&logoColor=FFD62E" alt="Vite" />
+  <img src="https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel Deployment" />
+</div>
 
-## 🚀 Initial Product Idea
-**Midnight Legacy** solves the critical problem of decentralized inheritance and asset recovery. Traditional blockchain wallets are lost forever if the owner loses their keys or passes away. Existing on-chain recovery methods require exposing backup addresses or balances publicly, compromising user privacy. Midnight Legacy acts as a **Zero-Knowledge Dead-Man's Switch**. It leverages the Midnight Network's ZK-proof capabilities to allow a wallet owner to check-in securely. If the owner becomes inactive past a configurable timeout, a pre-designated beneficiary can claim the locked assets via a ZK proof, **without ever revealing the beneficiary's private identity or the total vault balance publicly.**
+<br />
+
+<div align="center">
+  <a href="https://midnight-yckm-alpha.vercel.app/Instruct">
+    <img src="https://img.shields.io/badge/Live_Demo-Try_it_now-success?style=for-the-badge&logo=vercel" alt="Live Demo" />
+  </a>
+  <br />
+  <a href="https://midnight-yckm-alpha.vercel.app/Instruct"><strong>Hosted on Vercel</strong></a>
+</div>
+
+<br />
+
+# Midnight Legacy 
+
+**Midnight Legacy** is a decentralized, privacy-preserving inheritance protocol and dead-man's switch built on the Midnight Network. 
+
+### The Problem
+Traditional blockchain wallets face a critical vulnerability: if the owner loses their keys or passes away, the assets are locked forever. Existing on-chain recovery methods compromise user privacy by exposing backup addresses, beneficiary details, or vault balances to the public.
+
+### Our Solution
+Midnight Legacy leverages the Midnight Network's Zero-Knowledge (ZK) capabilities to create a secure, private inheritance mechanism. The wallet owner sets up a ZK-powered vault with an inactivity timeout. If the owner stops checking in, a pre-designated beneficiary can claim the assets using a Zero-Knowledge proof. 
+
+### Key Benefits
+*   **Absolute Privacy:** The beneficiary's identity, the vault's total balance, and the passcode remain completely hidden from the public ledger.
+*   **Trustless Execution:** Operates entirely via smart contracts with no centralized intermediaries.
+*   **Peace of Mind:** Ensures digital wealth is safely transferred to loved ones without friction or exposure.
+
+---
+
+# 📜 Smart Contract
+
+The core logic of the Midnight Legacy protocol is deployed on the Midnight Network.
+
+- **Network:** Midnight Testnet / Preprod
+- **Deployment Tx Hash:** `d4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35`
+- **Explorer Link:** [View on Midnight Explorer](https://explorer.preview.midnight.network)
+
+### Contract Address
+```text
+02008cfbfdce8b07cc5b4ebf2ff84976c6c21e64985220c91ab54ef390868846c483
+```
+
+---
+
+## ✨ Features
+
+- **Wallet Connection:** Seamless integration with Midnight Lace and 1AM Wallet.
+- **Smart Contract Interaction:** Direct on-chain interaction with the Inheritance Compact contract.
+- **Zero-Knowledge Proofs:** Client-side ZK-SNARK generation ensuring absolute privacy of beneficiary passcodes.
+- **Responsive UI:** Modern, brutalist "Kinetic Orange" aesthetic that works flawlessly across all devices.
+- **Real-time Updates:** Indexer integration for real-time contract state tracking.
+- **Secure Transactions:** Cryptographically secure fund locking and claiming mechanism.
+- **Error Handling:** Robust multi-wallet detection and graceful fallback UI.
+
+---
+
+## 🏗 Application Specification
+
+| Component | Detail |
+| :--- | :--- |
+| **Architecture** | Client-heavy dApp with ZK-SNARK proof generation |
+| **Frontend** | React 19 + Vite |
+| **Blockchain** | Midnight Network (Testnet/Preview) |
+| **Wallet** | Midnight Lace / 1AM Wallet |
+| **Proof Server** | Local / Browser-based Proving |
+| **Deployment** | Vercel (CI/CD Pipeline) |
+| **Package Manager** | npm |
+| **Rendering Strategy** | Client-Side Rendering (CSR) |
+| **API Integrations** | Midnight Network GraphQL Indexer |
+| **State Management** | React Hooks & Context |
+| **Folder Structure** | Monorepo (`/contracts` for backend, `/frontend` for UI) |
+
+---
+
+## 🛠 Technology Stack
+
+| Layer | Technology |
+|--------|------------|
+| **Frontend** | React, TypeScript, Vite |
+| **Smart Contract** | Midnight Compact Language |
+| **Wallet Integration** | @midnight-ntwrk/wallet-sdk |
+| **Styling** | Vanilla CSS (Kinetic Brutalist Theme) |
+| **Build Tool** | Vite + Rollup |
+| **Deployment** | Vercel |
+
+---
+
+## 📸 Screenshots
+
+<details>
+<summary><b>Landing Page & Dashboard</b></summary>
+<br/>
+
+*(Placeholder for Landing Page UI)*
+</details>
+
+<details>
+<summary><b>Compilation & Artifact Generation</b></summary>
+<br/>
+
+![Compilation Success](./docs/screenshots/compile-success.png)
+</details>
+
+<details>
+<summary><b>Contract Deployment</b></summary>
+<br/>
+
+![Contract Deployed](./docs/screenshots/contract-deployed.png)
+</details>
+
+---
+
+## 💻 Installation Guide
+
+### Requirements
+- **Node.js**: v18.x or v20.x
+- **Package Manager**: npm
+- **Git**: v2+
+- **Wallet**: Midnight Lace or 1AM Wallet browser extension
+- **Docker**: (Optional) For running a local proof server
+
+### Step 1: Clone Repository
+```bash
+git clone https://github.com/nagarekhushi04/midnight.git
+cd midnight
+```
+
+### Step 2: Install Packages
+This project uses a monorepo structure. You must install dependencies in both the root and frontend directories.
+```bash
+npm install
+cd frontend
+npm install
+```
+
+### Step 3: Environment Variables
+Create a `.env` file inside the `/frontend` directory:
+```bash
+cp .env.example .env
+```
+*(See Environment Variables section below for exact configuration)*
+
+### Step 4: Run Development Server
+```bash
+# Inside the /frontend directory
+npm run dev
+```
+
+### Step 5: Build for Production
+```bash
+# Inside the /frontend directory
+npm run build
+```
+
+---
+
+## 🔑 Environment Variables
+
+The `/frontend` directory requires the following environment configuration. Add these to your `.env` file:
+
+```env
+VITE_NETWORK=preview
+VITE_CONTRACT_ADDRESS=02008cfbfdce8b07cc5b4ebf2ff84976c6c21e64985220c91ab54ef390868846c483
+VITE_INDEXER_URL=https://indexer.preview.midnight.network/api/v4/graphql
+VITE_INDEXER_WS_URL=wss://indexer.preview.midnight.network/api/v4/graphql/ws
+VITE_PROOF_SERVER_URL=http://127.0.0.1:6300
+```
 
 ---
 
 ## ✅ Hackathon Submission Checklists
 
-### LEVEL 1 REQUIREMENTS:
+<details>
+<summary><b>LEVEL 1 REQUIREMENTS:</b></summary>
+
 - [x] Toolchain installed & contract compiles via Compact compiler (`compact compile`).
 - [x] Passing test suite (unit / integration).
 - [x] Managed directory present (`/managed/` containing `.zkir`, `.prover`, `.verifier` keys).
@@ -16,7 +189,11 @@
 - [x] Minimum 5 meaningful commits.
 - [x] Checklist: Public GitHub repo, README, setup instructions, compile screenshot, deployment screenshot, Public State vs. Private Witness explanation section.
 
-### LEVEL 2 REQUIREMENTS:
+</details>
+
+<details>
+<summary><b>LEVEL 2 REQUIREMENTS:</b></summary>
+
 - [x] Lace / 1AM Wallet connect / disconnect implemented and functional.
 - [x] Circuit called successfully from the frontend.
 - [x] Observable privacy behavior demonstrated (privacy claim proven without showing sensitive input on-chain).
@@ -24,6 +201,8 @@
 - [x] Live demo link (Vercel, Netlify, or similar).
 - [x] Demo video placeholder/script covering wallet connect + successful circuit call.
 - [x] Minimum 8 meaningful commits.
+
+</details>
 
 ---
 
@@ -42,7 +221,7 @@ Midnight Legacy strictly separates what is known to the network from what remain
 - **Proof Generation:** Occurs entirely locally. Only a Zero-Knowledge Proof (ZK-SNARK) is submitted on-chain, proving the beneficiary knows the passcode without ever exposing it.
 
 ### Architecture Flow
-```
+```text
 [User Client (Browser)] 
        │ (Passcode + Address)
        ▼
@@ -57,77 +236,3 @@ Midnight Legacy strictly separates what is known to the network from what remain
        ▼
 [Midnight Node / Devnet]
 ```
-
----
-
-## 📡 Live Deployment & Demo
-
-- **Network:** Midnight Testnet / Preprod
-- **Contract Address:** `02008cfbfdce8b07cc5b4ebf2ff84976c6c21e64985220c91ab54ef390868846c483`
-- **Deployment Tx Hash:** `d4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35`
-- **Live Demo Link:** [https://midnight-legacy-placeholder.vercel.app](https://midnight-legacy-placeholder.vercel.app) (Placeholder)
-- **Demo Video Link:** [https://youtube.com/watch?v=placeholder](https://youtube.com/watch?v=placeholder) (Placeholder)
-
----
-
-## 📸 Screenshots & Artifacts
-
-### 1. Compilation Success
-Successful Compact compilation generating ZK artifacts:
-![Compilation Success](./docs/screenshots/compile-success.png)
-
-### 2. Contract Deployed
-Terminal execution of the deployment script displaying the Contract Address and Tx Hash:
-![Contract Deployed](./docs/screenshots/contract-deployed.png)
-
----
-
-## 💻 Local Setup & Build Instructions
-
-### Prerequisites
-- **Node.js** (v18+)
-- **Docker** (For the local proof server)
-- **Midnight Compact Compiler** (For contract modifications)
-
-### Quickstart
-
-1. **Clone & Install Dependencies**
-   ```bash
-   git clone https://github.com/nagarekhushi04/midnight.git
-   cd midnight
-   npm install
-   cd frontend && npm install
-   ```
-
-2. **Start the Local Proof Server**
-   ```bash
-   docker run -d -p 6300:6300 meshsdk/midnight-proof-server:1.0.0
-   ```
-
-3. **Run the Frontend Application**
-   ```bash
-   cd frontend
-   npm run dev
-   ```
-
-4. **Run the Test Suite**
-   ```bash
-   cd frontend
-   npm test
-   ```
-
-5. **Build for Production**
-   ```bash
-   cd frontend
-   npm run build
-   ```
-
----
-
-## 🦊 Wallet Integration & Resilience
-
-Midnight Legacy implements a **Multi-Wallet Detection Strategy**. The frontend application robustly scans the browser environment for:
-- **1AM Wallet** (`window.oneAMWallet`, `window.midnight.oneAMWallet`)
-- **Midnight Lace** (`window.lace`, `window.midnight.mnLace`)
-
-If a wallet extension is not detected or the connection fails, the application does not crash. It leverages React `<ErrorBoundary>` components and defensive string formatting to display clean UI prompts, ensuring errors are strictly prevented.
