@@ -96,10 +96,17 @@ The core logic of the Midnight Legacy protocol is deployed on the Midnight Netwo
 ## 📸 Screenshots
 
 <details>
-<summary><b>Landing Page & Dashboard</b></summary>
+<summary><b>Landing Page</b></summary>
 <br/>
 
-*(Placeholder for Landing Page UI)*
+![Landing Page](./docs/screenshots/landing-page.png)
+</details>
+
+<details>
+<summary><b>Owner Check-In & Claim Vault</b></summary>
+<br/>
+
+![Owner Check-In & Claim Vault](./docs/screenshots/owner-dashboard.png)
 </details>
 
 <details>
