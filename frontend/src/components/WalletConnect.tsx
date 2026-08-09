@@ -1,3 +1,4 @@
+import React from 'react';
 
 interface WalletConnectProps {
   address: string | null;
@@ -31,116 +32,77 @@ export const WalletConnect: React.FC<WalletConnectProps> = ({
   const formattedAddress = formatAddress(address);
 
   return (
-    <div className="glass-panel" style={{
-      marginBottom: '24px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      flexWrap: 'wrap',
-      gap: '16px',
-    }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <div style={{
-          width: '12px',
-          height: '12px',
-          borderRadius: '50%',
-          backgroundColor: address ? '#10B981' : '#EF4444',
-          boxShadow: address ? '0 0 10px #10B981' : 'none'
-        }} />
-        <div>
-          <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 600, color: '#fff' }}>
-            Midnight Wallet
-          </h3>
-          {address ? (
-            <span style={{ fontSize: '0.85rem', color: '#9CA3AF', fontFamily: 'monospace' }}>
-              {formattedAddress}
-            </span>
-          ) : (
-            <span style={{ fontSize: '0.85rem', color: '#9CA3AF' }}>Not Connected</span>
-          )}
-        </div>
-      </div>
-
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <span style={{
-          background: 'var(--accent-bg)',
-          padding: '4px 12px',
-          borderRadius: '20px',
-          fontSize: '0.75rem',
-          fontWeight: 700,
-          color: 'var(--accent-terracotta)',
-          textTransform: 'uppercase',
-          letterSpacing: '1px',
-          border: '1px solid var(--accent-terracotta)'
-        }}>
-          {network || expectedNetwork}
-        </span>
-
+    <>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+        {address && (
+          <span className="mono-text" style={{ 
+            fontSize: '12px', 
+            color: 'var(--brand-orange)',
+            textTransform: 'uppercase',
+            borderRight: '1px solid rgba(255,255,255,0.2)',
+            paddingRight: '16px'
+          }}>
+            {network || expectedNetwork} 
+          </span>
+        )}
+        
         {address ? (
           <button
             onClick={onDisconnect}
+            className="brutalist-button"
             style={{
-              background: 'rgba(205, 108, 92, 0.1)',
-              border: '1px solid rgba(205, 108, 92, 0.4)',
-              color: 'var(--accent-terracotta)',
               padding: '8px 16px',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              fontWeight: 600,
-              transition: 'all 0.2s'
+              fontSize: '12px',
+              border: '1px solid var(--pure-white)',
+              background: 'transparent'
             }}
           >
-            Disconnect
+            {formattedAddress} (DISCONNECT)
           </button>
         ) : (
           <button
             onClick={onConnect}
             disabled={isConnecting}
+            className="brutalist-button"
             style={{
-              background: 'var(--accent-terracotta)',
-              border: 'none',
-              color: 'var(--bg-obsidian)',
-              padding: '10px 20px',
-              borderRadius: '8px',
-              cursor: isConnecting ? 'not-allowed' : 'pointer',
-              fontWeight: 700,
-              boxShadow: 'var(--shadow-glow)',
-              transition: 'all 0.2s'
+              padding: '8px 16px',
+              fontSize: '12px',
+              background: 'var(--pure-white)',
+              color: 'var(--solid-black)',
+              border: '1px solid var(--pure-white)'
             }}
           >
-            {isConnecting ? 'Connecting...' : 'Connect Wallet'}
+            {isConnecting ? 'CONNECTING...' : 'CONNECT WALLET'}
           </button>
         )}
       </div>
 
       {error && (
         <div style={{
-          width: '100%',
-          background: 'rgba(239, 68, 68, 0.15)',
-          border: '1px solid rgba(239, 68, 68, 0.3)',
-          borderRadius: '8px',
-          padding: '12px',
-          color: '#FCA5A5',
-          fontSize: '0.875rem',
+          position: 'fixed',
+          bottom: '24px',
+          right: '24px',
+          background: 'var(--brand-orange)',
+          color: 'var(--solid-black)',
+          padding: '16px 24px',
+          fontFamily: 'var(--font-mono)',
+          fontWeight: 'bold',
+          fontSize: '14px',
+          zIndex: 9999,
           display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center'
+          gap: '16px',
+          alignItems: 'center',
+          border: '2px solid var(--solid-black)'
         }}>
-          <span>⚠️ {error}</span>
-          <button
+          <span>ERR: {error}</span>
+          <button 
             onClick={onClearError}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              color: '#FCA5A5',
-              cursor: 'pointer',
-              fontWeight: 'bold'
-            }}
+            style={{ background: 'transparent', border: 'none', color: 'var(--solid-black)', cursor: 'pointer', fontWeight: 'bold' }}
           >
-            ✕
+            [X]
           </button>
         </div>
       )}
-    </div>
+    </>
   );
 };
