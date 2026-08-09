@@ -12,8 +12,12 @@
   <a href="https://midnight-yckm-alpha.vercel.app/Instruct">
     <img src="https://img.shields.io/badge/Live_Demo-Try_it_now-success?style=for-the-badge&logo=vercel" alt="Live Demo" />
   </a>
+  <a href="https://www.loom.com/share/af873935c46040bd89556f537a15d41c">
+    <img src="https://img.shields.io/badge/Video_Demo-Watch_on_Loom-625df5?style=for-the-badge&logo=loom&logoColor=white" alt="Loom Video Demo" />
+  </a>
   <br />
-  <a href="https://midnight-yckm-alpha.vercel.app/Instruct"><strong>Hosted on Vercel</strong></a>
+  <a href="https://midnight-yckm-alpha.vercel.app/Instruct"><strong>Hosted on Vercel</strong></a> &nbsp;|&nbsp; 
+  <a href="https://www.loom.com/share/af873935c46040bd89556f537a15d41c"><strong>📺 Watch Demo Video</strong></a>
 </div>
 
 <br />
