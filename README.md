@@ -99,14 +99,28 @@ The core logic of the Midnight Legacy protocol is deployed on the Midnight Netwo
 <summary><b>Landing Page</b></summary>
 <br/>
 
-![Landing Page](./docs/screenshots/landing-page.png)
+![Landing Page](c:\Users\khush\OneDrive\Pictures\Screenshots\Screenshot 2026-08-09 144855.png)
 </details>
 
 <details>
 <summary><b>Owner Check-In & Claim Vault</b></summary>
 <br/>
 
-![Owner Check-In & Claim Vault](./docs/screenshots/owner-dashboard.png)
+![Owner Check-In & Claim Vault](c:\Users\khush\OneDrive\Pictures\Screenshots\Screenshot 2026-08-09 144805.png)
+</details>
+
+<details>
+<summary><b>ZK Proof Claim Form & Inputs</b></summary>
+<br/>
+
+![ZK Proof Claim Form](c:\Users\khush\OneDrive\Pictures\Screenshots\Screenshot 2026-08-09 144818.png)
+</details>
+
+<details>
+<summary><b>Graceful Error Handling & Validation</b></summary>
+<br/>
+
+![Error Handling](c:\Users\khush\OneDrive\Pictures\Screenshots\Screenshot 2026-08-09 144840.png)
 </details>
 
 <details>
