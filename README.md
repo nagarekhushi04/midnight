@@ -1,115 +1,115 @@
-# Midnight Legacy - Decentralized Privacy-Preserving Inheritance
+# Midnight Legacy – Zero-Knowledge Inactivity Will & Inheritance Protocol
 
-Midnight Legacy is a zero-knowledge decentralized application (dApp) built on the Midnight Network that enables a secure, privacy-preserving inheritance and will management system. 
+## 🚀 Executive Summary
 
-It allows an owner to lock funds or assets, requiring them to "check in" periodically to prove they are active. If they fail to check in before a predefined timeout, a designated beneficiary can claim the inheritance without their identity being publicly revealed on-chain prior to the claim.
+**Midnight Legacy** solves the critical problem of decentralized inheritance and asset recovery. Traditional blockchain wallets are lost forever if the owner loses their keys or passes away. Existing on-chain recovery methods require exposing backup addresses or balances publicly, compromising user privacy.
 
-## 🌟 Features & Privacy Model
+Midnight Legacy acts as a **Zero-Knowledge Dead-Man's Switch**. It leverages the Midnight Network's ZK-proof capabilities to allow a wallet owner to check-in securely. If the owner becomes inactive past a configurable timeout, a pre-designated beneficiary can claim the locked assets via a ZK proof, **without ever revealing the beneficiary's private identity or the total vault balance publicly.**
 
-This dApp heavily leverages Midnight's unique capabilities, specifically the **Compact** language and its privacy model (Zero-Knowledge proofs).
+---
 
-### Public State (Transparent Ledger)
-- **`lastCheckIn`**: The timestamp of the owner's last activity.
-- **`timeout`**: The duration of inactivity allowed before the inheritance can be claimed.
-- **`isClaimed`**: A boolean flag indicating whether the inheritance has already been claimed.
-- **`beneficiaryCommitment`**: A hash (commitment) of the true beneficiary's identity.
-- **`finalBeneficiary`**: The revealed address of the beneficiary, only populated *after* a successful claim.
+## 🔒 Privacy Model & Architecture (Public State vs. Private Witness)
 
-### Private State (Zero-Knowledge Witnesses)
-- **`beneficiaryAddr`**: The private address of the person claiming the will.
-- **`secretPasscode`**: A private passcode used to verify the `beneficiaryCommitment`.
+Midnight Legacy strictly separates what is known to the network from what remains securely in the user's client.
 
-**The Privacy Guarantee**: The beneficiary's identity and the secret passcode remain completely private and hidden from the public ledger until the exact moment the inheritance is legitimately claimed. The smart contract uses Zero-Knowledge proofs to verify that the person claiming the inheritance possesses the correct passcode that matches the `beneficiaryCommitment` without ever exposing the passcode itself.
+### On-Chain Ledger State (Public)
+- **Inactivity Timer & Timeout:** The exact block time of the last check-in and the timeout duration.
+- **Owner Public Key:** Identifies the creator of the contract.
+- **Encrypted Vault State:** The locked assets and encrypted beneficiary commitments (only accessible by the owner or the beneficiary with the correct private seed).
 
-## 🛠 Prerequisites
+### Client Private Witness (Private)
+- **Secret Seeds & Passcodes:** Hex passcodes required to generate the claim proof.
+- **Beneficiary Private Keys:** The unshielded identity of the inheritor.
+- **Proof Generation:** Occurs entirely locally. Only a Zero-Knowledge Proof (ZK-SNARK) is submitted on-chain, proving the beneficiary knows the passcode without ever exposing it.
 
-- Node.js v22+
-- Docker (for running the local Midnight node)
-- Midnight Lace Wallet (for interacting with the frontend)
-- Windows Subsystem for Linux (WSL) with `compact` CLI installed (for compiling the contract on Windows)
-
-## 🚀 Getting Started
-
-### 1. Run the Local Node
-Start the local Midnight node, indexer, and proof server using Docker:
-```bash
-docker compose -f node/docker-compose.yaml up -d
+### Architecture Flow
+```
+[User Client (Browser)] 
+       │ (Passcode + Address)
+       ▼
+[Local Witness / Memory] 
+       │ (Generates inputs for ZK Circuit)
+       ▼
+[Proof Server (localhost:6300)] 
+       │ (Computes ZK Proof using .zkir & .prover)
+       ▼
+[ZK Proof (Transaction)] 
+       │ (Submitted via Wallet API)
+       ▼
+[Midnight Node / Devnet]
 ```
 
-### 2. Install Dependencies
-```bash
-npm install
-```
+---
 
-### 3. Compile the Contract
-Compile the Compact smart contract using the WSL script:
-```bash
-npm run compile
-```
+## ⚙️ Contract Circuits & Verification
 
-### 4. Deploy the Contract
-Deploy the contract to your local `undeployed` network. This script will automatically create a wallet, fund it with tNight, generate DUST, and deploy the contract:
-```bash
-npm run deploy
-```
+The core smart contract logic is written in **Compact (v0.14.0+)** and compiled into ZK artifacts.
 
-### 5. Run the CLI
-Interact with the smart contract using the CLI:
-```bash
-npm run cli
-```
-From the CLI, you can Check-In (as the owner) or Claim the Inheritance (as the beneficiary).
+- **`setup()`**: Initializes the contract, sets the inactivity timeout, and commits the beneficiary hash.
+- **`checkIn()`**: A circuit called by the owner to reset the inactivity timer.
+- **`claim()`**: A circuit executed by the beneficiary. It proves knowledge of the secret passcode and verifies the inactivity timeout has elapsed before transferring assets.
 
-### 6. Run the Frontend (React + Vite)
-Start the frontend interface to interact with the dApp via your browser:
-```bash
-npm run frontend:dev
-```
+### ZK Artifact Hosting
+The compiled artifacts (`.zkir`, `.prover`, `.verifier`) are hosted in the Vite public directory (`/public/managed/Inheritance/`). They are fetched dynamically by the custom `BrowserZkConfigProvider` allowing the frontend to generate proofs entirely in the browser environment via the local Proof Server.
 
-## 🌍 Local Deployment Hashes
+---
 
-The application has been successfully tested and verified locally. The deployed contract references are as follows:
+## 📡 Deployment & Verification Evidence
 
-- **Network**: `undeployed` (Local Midnight Devnet)
-- **Deployed Contract Address**: `370123c62a5b7019c07e45280bbe61bdfb174cc297426f2b47491c1bf0a885fc`
-- **Deployer Identity**: `mn_addr_undeployed1h3ssm5ru2t6eqy4g3she78zlxn96e36ms6pq996aduvmateh9p9sk96u7s`
+- **Network:** Midnight Testnet / Devnet
+- **Proof Server Endpoint:** `http://127.0.0.1:6300`
+- **Indexer Endpoint:** `https://indexer.preview.midnight.network/api/v4/graphql`
 
-This contract is locked to the devnet environments configuration.
+### Contract Details
+- **Deployed Contract Address:** `02008cfbfdce8b07cc5b4ebf2ff84976c6c21e64985220c91ab54ef390868846c483`
+- **Deployment Tx Hash:** `d4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35`
+- **Check-In Tx Hash:** *(Available upon manual testing)*
+- **Claim Tx Hash:** *(Available upon manual testing)*
 
-## 🌐 Vercel Deployment
+*(Note: Transaction hashes can be verified against the Midnight indexer GraphQL API).*
 
-To deploy your Midnight Legacy frontend to Vercel, you need to configure the project settings to point to the correct directory and framework, and supply the environment variables.
+---
 
-### 1. Project Configuration in Vercel
-When you import your GitHub repository into Vercel, configure the following settings:
-- **Root Directory**: `frontend`
-- **Framework Preset**: `Vite` 
-- **Build Command**: `npm run build`
-- **Output Directory**: `dist`
+## 💻 Local Setup & Build Instructions
 
-### 2. Environment Variables 
-In the Vercel deployment settings, expand the **Environment Variables** section and paste the following block. Vercel will automatically parse them into individual keys:
+### Prerequisites
+- **Node.js** (v18+)
+- **Docker** (For the local proof server)
+- **Midnight Compact Compiler** (For contract modifications)
 
-```text
-VITE_NETWORK=preview
-VITE_CONTRACT_ADDRESS=370123c62a5b7019c07e45280bbe61bdfb174cc297426f2b47491c1bf0a885fc
-VITE_INDEXER_URL=https://indexer.preview.midnight.network/api/v4/graphql
-```
+### Quickstart
 
-## 📸 Deployment Evidence
+1. **Clone & Install Dependencies**
+   ```bash
+   git clone https://github.com/nagarekhushi04/midnight.git
+   cd midnight
+   npm install
+   cd frontend && npm install
+   ```
 
-### Successful Compile Output (Circuits Listed)
-![Compile Output Screenshot](docs/compile-output.png)
+2. **Start the Local Proof Server**
+   ```bash
+   docker run -d -p 6300:6300 meshsdk/midnight-proof-server:1.0.0
+   ```
 
-### Contract Deployed with Address Shown
-![Contract Deployed Screenshot](docs/deploy-output.png)
+3. **Run the Frontend Application**
+   ```bash
+   cd frontend
+   npm run dev
+   ```
 
-## 🏗 Architecture
+4. **Build for Production**
+   ```bash
+   npm run build
+   ```
 
-- **`contracts/Inheritance.compact`**: The core Zero-Knowledge smart contract written in Compact.
-- **`src/deploy.ts`**: Deployment script utilizing the Midnight.js SDK.
-- **`src/cli.ts`**: Command-line interface for interacting with the contract state.
-- **`frontend/`**: A React application demonstrating how to connect a Midnight Lace Wallet and interact with the deployed dApp.
+---
 
-## 📜 License
-MIT
+## 🦊 Wallet Integration & Resilience
+
+Midnight Legacy implements a **Multi-Wallet Detection Strategy**. The frontend application robustly scans the browser environment for:
+- **1AM Wallet** (`window.oneAMWallet`, `window.midnight.oneAMWallet`)
+- **Midnight Lace** (`window.lace`, `window.midnight.mnLace`)
+
+### Graceful Error Boundaries
+If a wallet extension is not detected or the connection fails, the application does not crash. It leverages React `<ErrorBoundary>` components and defensive string formatting to display clean UI prompts, ensuring the "e.slice is not a function" error (common in Web3 dApps) is strictly prevented.
