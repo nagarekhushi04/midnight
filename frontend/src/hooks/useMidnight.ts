@@ -1,5 +1,13 @@
 import { useState, useCallback } from 'react';
 
+declare global {
+  interface Window {
+    midnight?: Record<string, any>;
+    oneAMWallet?: any;
+    lace?: any;
+  }
+}
+
 export interface MidnightWalletAPI {
   name: string;
   icon?: string;
@@ -14,11 +22,7 @@ export interface MidnightWalletConnection {
   submitTransaction?: (tx: any) => Promise<string>;
 }
 
-declare global {
-  interface Window {
-    midnight?: Record<string, MidnightWalletAPI>;
-  }
-}
+
 
 export function useMidnight() {
   const [wallet, setWallet] = useState<MidnightWalletConnection | null>(null);
@@ -38,16 +42,28 @@ export function useMidnight() {
     setError(null);
 
     try {
-      if (!window.midnight || Object.keys(window.midnight).length === 0) {
-        throw new Error('No Midnight wallet extension found. Please install Midnight Lace Wallet.');
+      let targetWalletAPI: any = null;
+
+      if (window.midnight) {
+        if (window.midnight.oneAMWallet) {
+          targetWalletAPI = window.midnight.oneAMWallet;
+        } else if (window.midnight.mnLace) {
+          targetWalletAPI = window.midnight.mnLace;
+        } else if (Object.keys(window.midnight).length > 0) {
+          targetWalletAPI = Object.values(window.midnight)[0];
+        }
+      } 
+      
+      if (!targetWalletAPI && window.oneAMWallet) {
+        targetWalletAPI = window.oneAMWallet;
+      }
+      
+      if (!targetWalletAPI && window.lace) {
+        targetWalletAPI = window.lace;
       }
 
-      // Discover wallet using Object.values without hardcoding wallet names
-      const installedWallets = Object.values(window.midnight);
-      const targetWalletAPI = installedWallets[0] as any;
-
       if (!targetWalletAPI) {
-        throw new Error('No compatible Midnight wallet provider detected.');
+        throw new Error('1AM / Midnight Wallet extension not detected. Please install the extension or enable Devnet mode.');
       }
 
       // Midnight Lace uses .enable(), but fallback to .connect()

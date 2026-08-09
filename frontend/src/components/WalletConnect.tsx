@@ -10,6 +10,14 @@ interface WalletConnectProps {
   onClearError: () => void;
 }
 
+const formatAddress = (addr: unknown): string => {
+  if (typeof addr === 'string' && addr.length > 0) {
+    if (addr.length <= 14) return addr;
+    return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
+  }
+  return '';
+};
+
 export const WalletConnect: React.FC<WalletConnectProps> = ({
   address,
   network,
@@ -20,6 +28,8 @@ export const WalletConnect: React.FC<WalletConnectProps> = ({
   onDisconnect,
   onClearError,
 }) => {
+  const formattedAddress = formatAddress(address);
+
   return (
     <div className="glass-panel" style={{
       marginBottom: '24px',
@@ -43,7 +53,7 @@ export const WalletConnect: React.FC<WalletConnectProps> = ({
           </h3>
           {address ? (
             <span style={{ fontSize: '0.85rem', color: '#9CA3AF', fontFamily: 'monospace' }}>
-              {address.slice(0, 10)}...{address.slice(-8)}
+              {formattedAddress}
             </span>
           ) : (
             <span style={{ fontSize: '0.85rem', color: '#9CA3AF' }}>Not Connected</span>
