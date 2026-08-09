@@ -1,6 +1,9 @@
 {
   "buildCommand": "cd frontend && npm run build",
   "outputDirectory": "frontend/dist",
-  "installCommand": "npm install && cd frontend && npm install",
-  "framework": "vite"
+  "installCommand": "npm install @rollup/rollup-linux-x64-gnu --no-save && cd frontend && npm install && npm install @rollup/rollup-linux-x64-gnu --no-save",
+  "framework": "vite",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
 }
