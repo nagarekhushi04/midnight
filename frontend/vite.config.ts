@@ -8,7 +8,9 @@ import topLevelAwait from 'vite-plugin-top-level-await'
 export default defineConfig({
   plugins: [
     react(),
+    // @ts-ignore
     wasm(),
+    // @ts-ignore
     topLevelAwait(),
     nodePolyfills({
       globals: {
