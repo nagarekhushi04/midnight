@@ -13,6 +13,7 @@ export function App() {
     connect,
     disconnect,
     clearError,
+    wallet,
   } = useMidnight();
 
   const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS || null;
@@ -52,6 +53,7 @@ export function App() {
           <InheritanceFeature
             contractAddress={contractAddress}
             walletConnected={!!address}
+            wallet={wallet}
           />
         </main>
 

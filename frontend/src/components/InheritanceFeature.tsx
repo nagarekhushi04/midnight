@@ -1,4 +1,22 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { findDeployedContract } from '@midnight-ntwrk/midnight-js-contracts';
+import { httpClientProofProvider } from '@midnight-ntwrk/midnight-js-http-client-proof-provider';
+import { indexerPublicDataProvider } from '@midnight-ntwrk/midnight-js-indexer-public-data-provider';
+import { BrowserZkConfigProvider } from '../utils/BrowserZkConfigProvider';
+import { getMemoryPrivateStateProvider } from '../utils/dummyPrivateStateProvider';
+import { CompiledContract } from '@midnight-ntwrk/midnight-js-protocol/compact-js';
+import * as Inheritance from '../contract/index.js';
+
+function hexToUint8Array(hexString: string): Uint8Array {
+  if (hexString.length % 2 !== 0) throw new Error("Invalid hex string");
+  const array = new Uint8Array(hexString.length / 2);
+  for (let i = 0; i < hexString.length; i += 2) {
+    array[i / 2] = parseInt(hexString.substring(i, i + 2), 16);
+  }
+  return array;
+}
+
+const PRIVATE_STATE_ID = 'InheritancePrivateState';
 
 interface ContractState {
   lastCheckIn: string;
@@ -11,11 +29,13 @@ interface ContractState {
 interface InheritanceFeatureProps {
   contractAddress: string | null;
   walletConnected: boolean;
+  wallet?: any;
 }
 
 export const InheritanceFeature: React.FC<InheritanceFeatureProps> = ({
   contractAddress,
   walletConnected,
+  wallet,
 }) => {
   const [state, setState] = useState<ContractState | null>(null);
   const [loadingState, setLoadingState] = useState(false);
@@ -24,55 +44,36 @@ export const InheritanceFeature: React.FC<InheritanceFeatureProps> = ({
   const [txResult, setTxResult] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
 
-  // Form inputs for claiming (transient, never logged or stored in persistent state)
+  // Form inputs for claiming
   const [beneficiaryAddrInput, setBeneficiaryAddrInput] = useState('');
   const [secretPasscodeInput, setSecretPasscodeInput] = useState('');
 
   const indexerUrl = import.meta.env.VITE_INDEXER_URL || 'https://indexer.preview.midnight.network/api/v4/graphql';
+  const indexerWsUrl = import.meta.env.VITE_INDEXER_WS_URL || 'wss://indexer.preview.midnight.network/api/v4/graphql/ws';
+
+  // Helpers to fetch public data
+  const publicDataProvider = indexerPublicDataProvider(indexerUrl, indexerWsUrl);
 
   const fetchContractState = async () => {
     if (!contractAddress) return;
     setLoadingState(true);
     try {
-      // Query contract public ledger state via GraphQL indexer
-      const query = `
-        query GetContractState($address: String!) {
-          contractState(address: $address) {
-            lastCheckIn
-            timeout
-            isClaimed
-            finalBeneficiary
-            beneficiaryCommitment
-          }
-        }
-      `;
-      const response = await fetch(indexerUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query, variables: { address: contractAddress } }),
-      });
-      const resData = await response.json();
-      if (resData.data?.contractState) {
-        setState(resData.data.contractState);
-      } else {
-        // Fallback demo state if contract is newly deployed / indexer syncing
+      const contractStateData = await publicDataProvider.queryContractState(contractAddress);
+      if (contractStateData) {
+        const ledgerState = Inheritance.ledger(contractStateData.data);
         setState({
-          lastCheckIn: String(Math.floor(Date.now() / 1000) - 3600),
-          timeout: '86400',
-          isClaimed: false,
-          finalBeneficiary: 'Not Claimed',
-          beneficiaryCommitment: '0x8f3c...99a1',
+          lastCheckIn: ledgerState.lastCheckIn.toString(),
+          timeout: ledgerState.timeout.toString(),
+          isClaimed: ledgerState.isClaimed,
+          finalBeneficiary: ledgerState.finalBeneficiary,
+          beneficiaryCommitment: ledgerState.beneficiaryCommitment,
         });
+      } else {
+        // Fallback or empty state
+        setState(null);
       }
-    } catch {
-      // Demo state fallback for interface testing
-      setState({
-        lastCheckIn: String(Math.floor(Date.now() / 1000) - 3600),
-        timeout: '86400',
-        isClaimed: false,
-        finalBeneficiary: 'Not Claimed',
-        beneficiaryCommitment: '0x8f3c...99a1',
-      });
+    } catch (err: any) {
+      console.error('Error fetching state:', err);
     } finally {
       setLoadingState(false);
     }
@@ -80,7 +81,51 @@ export const InheritanceFeature: React.FC<InheritanceFeatureProps> = ({
 
   useEffect(() => {
     fetchContractState();
+    // In a real app we could subscribe to publicDataProvider.contractStateObservable(contractAddress) here
   }, [contractAddress]);
+
+  const connectToContract = async () => {
+    if (!wallet || !contractAddress) {
+      throw new Error("Wallet not connected or contract address missing");
+    }
+
+    const compiledContract = CompiledContract.make('Inheritance', Inheritance.Contract).pipe(
+      CompiledContract.withVacantWitnesses
+    );
+
+    const zkConfigProvider = new BrowserZkConfigProvider('/managed/Inheritance');
+    
+    const providers = {
+      privateStateProvider: getMemoryPrivateStateProvider(),
+      publicDataProvider,
+      zkConfigProvider,
+      proofProvider: httpClientProofProvider('http://127.0.0.1:6300', zkConfigProvider),
+      walletProvider: {
+        getCoinPublicKey: () => wallet.shieldedSecretKeys.coinPublicKey,
+        getEncryptionPublicKey: () => wallet.shieldedSecretKeys.encryptionPublicKey,
+        async balanceTx(tx: any, ttl?: Date) {
+          const recipe = await wallet.wallet.balanceUnboundTransaction(
+            tx,
+            { shieldedSecretKeys: wallet.shieldedSecretKeys, dustSecretKey: wallet.dustSecretKey },
+            { ttl: ttl ?? new Date(Date.now() + 30 * 60 * 1000) },
+          );
+          return wallet.wallet.finalizeRecipe(recipe);
+        },
+        submitTx: (tx: any) => wallet.wallet.submitTransaction(tx) as any,
+      },
+      midnightProvider: undefined as any,
+    };
+    
+    // Polyfill midnightProvider field
+    providers.midnightProvider = providers.walletProvider;
+
+    return findDeployedContract(providers, {
+      compiledContract: compiledContract as any,
+      contractAddress,
+      privateStateId: PRIVATE_STATE_ID,
+      initialPrivateState: {},
+    });
+  };
 
   const handleCheckIn = async () => {
     if (!walletConnected) {
@@ -90,13 +135,15 @@ export const InheritanceFeature: React.FC<InheritanceFeatureProps> = ({
     setActionError(null);
     setTxResult(null);
     setIsProving(true);
-    setProvingAction('Owner Check-In: Generating Zero-Knowledge Proof...');
+    setProvingAction('Owner Check-In: Generating Zero-Knowledge Proof (talking to Proof Server)...');
 
     try {
-      // Zero-knowledge proof generation simulation & submitting via DApp connector
-      await new Promise((resolve) => setTimeout(resolve, 3500));
+      const deployed = await connectToContract();
+      const currentTime = BigInt(Math.floor(Date.now() / 1000));
+      
+      const tx = await (deployed.callTx as any).checkIn(currentTime);
 
-      setTxResult('Check-in transaction successfully proved and submitted on-chain!');
+      setTxResult(`Check-in successful! Tx Hash: ${tx.public.txHash}`);
       await fetchContractState();
     } catch (err: any) {
       setActionError(err?.message || 'Check-in failed.');
@@ -120,14 +167,28 @@ export const InheritanceFeature: React.FC<InheritanceFeatureProps> = ({
     setActionError(null);
     setTxResult(null);
     setIsProving(true);
-    setProvingAction('Executing Claim: Proving ownership without revealing your passcode...');
+    setProvingAction('Executing Claim: Proving ownership (talking to Proof Server)...');
 
     try {
-      // Private inputs are used strictly at runtime for proof generation and immediately cleared
-      await new Promise((resolve) => setTimeout(resolve, 4500));
+      const deployed = await connectToContract();
+      const currentTime = BigInt(Math.floor(Date.now() / 1000));
 
-      setTxResult('Inheritance successfully claimed and disclosed on-chain!');
-      // Immediately wipe private inputs from memory
+      let beneficiaryAddr = new Uint8Array(32);
+      beneficiaryAddr.fill(1);
+      if (beneficiaryAddrInput.length === 64) {
+        beneficiaryAddr = hexToUint8Array(beneficiaryAddrInput) as any;
+      }
+
+      let secretPasscode = new Uint8Array(32);
+      secretPasscode.fill(1);
+      if (secretPasscodeInput.length === 64) {
+        secretPasscode = hexToUint8Array(secretPasscodeInput) as any;
+      }
+
+      const tx = await (deployed.callTx as any).claim(currentTime, beneficiaryAddr, secretPasscode);
+
+      setTxResult(`Inheritance claimed! Tx Hash: ${tx.public.txHash}`);
+      
       setBeneficiaryAddrInput('');
       setSecretPasscodeInput('');
       await fetchContractState();
@@ -164,7 +225,7 @@ export const InheritanceFeature: React.FC<InheritanceFeatureProps> = ({
             <div>
               <span style={{ color: 'var(--text-muted)' }}>Status:</span>
               <div style={{ fontWeight: 'bold', color: state?.isClaimed ? 'var(--accent-terracotta)' : '#10B981', marginTop: '4px' }}>
-                {state?.isClaimed ? 'CLAIMED' : 'ACTIVE / UNCLAIMED'}
+                {state?.isClaimed ? 'CLAIMED' : (state ? 'ACTIVE / UNCLAIMED' : 'LOADING...')}
               </div>
             </div>
             <div>
@@ -174,13 +235,13 @@ export const InheritanceFeature: React.FC<InheritanceFeatureProps> = ({
           </div>
           <div>
             <span style={{ color: 'var(--text-muted)' }}>Beneficiary Commitment (Public ZK Hash):</span>
-            <div style={{ fontFamily: 'var(--mono)', color: 'var(--text-sand)', marginTop: '4px' }}>
+            <div style={{ fontFamily: 'var(--mono)', color: 'var(--text-sand)', marginTop: '4px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
               {state?.beneficiaryCommitment || '...'}
             </div>
           </div>
           <div>
             <span style={{ color: 'var(--text-muted)' }}>Revealed Beneficiary (Post-Claim):</span>
-            <div style={{ fontWeight: 'bold', color: 'var(--accent-rose-light)', marginTop: '4px' }}>
+            <div style={{ fontWeight: 'bold', color: 'var(--accent-rose-light)', marginTop: '4px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
               {state?.finalBeneficiary || 'Hidden until claimed'}
             </div>
           </div>
@@ -233,20 +294,20 @@ export const InheritanceFeature: React.FC<InheritanceFeatureProps> = ({
 
           <form onSubmit={handleClaim} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div>
-              <label style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Beneficiary Address/Identity:</label>
+              <label style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Beneficiary Address/Identity (Hex):</label>
               <input
                 type="text"
-                placeholder="e.g. midnight1q9x..."
+                placeholder="64 character hex string"
                 value={beneficiaryAddrInput}
                 onChange={(e) => setBeneficiaryAddrInput(e.target.value)}
                 style={{ marginTop: '6px' }}
               />
             </div>
             <div>
-              <label style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Secret Passcode (Private Witness):</label>
+              <label style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Secret Passcode (Hex Witness):</label>
               <input
                 type="password"
-                placeholder="••••••••••••"
+                placeholder="64 character hex string"
                 value={secretPasscodeInput}
                 onChange={(e) => setSecretPasscodeInput(e.target.value)}
                 style={{ marginTop: '6px' }}
@@ -303,7 +364,8 @@ export const InheritanceFeature: React.FC<InheritanceFeatureProps> = ({
           borderRadius: '12px',
           padding: '20px',
           color: '#10B981',
-          fontWeight: 500
+          fontWeight: 500,
+          wordBreak: 'break-all'
         }}>
           ✅ {txResult}
         </div>
@@ -317,7 +379,8 @@ export const InheritanceFeature: React.FC<InheritanceFeatureProps> = ({
           borderRadius: '12px',
           padding: '20px',
           color: 'var(--accent-terracotta)',
-          fontWeight: 500
+          fontWeight: 500,
+          wordBreak: 'break-word'
         }}>
           ⚠️ {actionError}
         </div>
