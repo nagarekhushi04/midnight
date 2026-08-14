@@ -130,7 +130,7 @@ export const InheritanceFeature: React.FC<InheritanceFeatureProps> = ({
     setActionError(null);
     setTxResult(null);
     setIsProving(true);
-    setProvingAction('OWNER CHECK-IN: GENERATING ZK PROOF...');
+    setProvingAction('Generating Zero-Knowledge Proof locally...');
 
     try {
       const deployed = await connectToContract();
@@ -161,7 +161,7 @@ export const InheritanceFeature: React.FC<InheritanceFeatureProps> = ({
     setActionError(null);
     setTxResult(null);
     setIsProving(true);
-    setProvingAction('EXECUTING CLAIM: PROVING OWNERSHIP...');
+    setProvingAction('Generating Zero-Knowledge Proof locally...');
 
     try {
       const deployed = await connectToContract();

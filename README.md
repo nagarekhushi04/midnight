@@ -9,14 +9,14 @@
 <br />
 
 <div align="center">
-  <a href="https://midnight-yckm-alpha.vercel.app/Instruct">
+  <a href="https://midnight-legacy.vercel.app">
     <img src="https://img.shields.io/badge/Live_Demo-Try_it_now-success?style=for-the-badge&logo=vercel" alt="Live Demo" />
   </a>
   <a href="https://www.loom.com/share/af873935c46040bd89556f537a15d41c">
     <img src="https://img.shields.io/badge/Video_Demo-Watch_on_Loom-625df5?style=for-the-badge&logo=loom&logoColor=white" alt="Loom Video Demo" />
   </a>
   <br />
-  <a href="https://midnight-yckm-alpha.vercel.app/Instruct"><strong>Hosted on Vercel</strong></a> &nbsp;|&nbsp; 
+  <a href="https://midnight-legacy.vercel.app"><strong>Hosted on Vercel</strong></a> &nbsp;|&nbsp; 
   <a href="https://www.loom.com/share/af873935c46040bd89556f537a15d41c"><strong>📺 Watch Demo Video</strong></a>
 </div>
 
@@ -36,6 +36,13 @@ Midnight Legacy leverages the Midnight Network's Zero-Knowledge (ZK) capabilitie
 *   **Absolute Privacy:** The beneficiary's identity, the vault's total balance, and the passcode remain completely hidden from the public ledger.
 *   **Trustless Execution:** Operates entirely via smart contracts with no centralized intermediaries.
 *   **Peace of Mind:** Ensures digital wealth is safely transferred to loved ones without friction or exposure.
+
+### Privacy Model
+Midnight Legacy guarantees absolute privacy by performing ZK-SNARK proof generation entirely client-side. When a user connects their wallet and invokes a circuit (e.g., executing a `claim()` or `checkIn()`), the frontend seamlessly connects to a local Proof Server. This server ingests the private witness inputs—such as secret seeds or private keys—and generates a cryptographic proof locally. Only this zero-knowledge proof is sent to the Midnight Network, ensuring that no sensitive user inputs or state variables are ever exposed on-chain or over the network payload. 
+
+### Wallet & Circuit Documentation
+- **Connect / Disconnect Wallet**: Users can easily connect and disconnect their 1AM Wallet or Lace extension from the UI header using explicit methods exposed via `useMidnight.ts`.
+- **Circuit Invocation**: ZK circuits are invoked seamlessly. When triggering a contract function (like Claim), the application displays a dynamic loading indicator: *"Generating Zero-Knowledge Proof locally..."*, ensuring the user is aware of the client-side cryptographic work being performed while their private witness data remains securely masked.
 
 ---
 

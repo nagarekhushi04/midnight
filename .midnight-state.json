@@ -5,6 +5,10 @@
     "preview": {
       "seed": "5a3cc4836865d7d2a9b5ee0902a521082a63ab28f4542b7ca4d30c5c15702405",
       "createdAt": "2026-08-08T14:23:00.955Z"
+    },
+    "preprod": {
+      "seed": "5a3cc4836865d7d2a9b5ee0902a521082a63ab28f4542b7ca4d30c5c15702405",
+      "createdAt": "2026-08-08T14:23:00.955Z"
     }
   },
   "deployments": {
