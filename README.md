@@ -9,14 +9,14 @@
 <br />
 
 <div align="center">
-  <a href="https://midnight-legacy.vercel.app">
+  <a href="https://midnight-seven-pi.vercel.app/">
     <img src="https://img.shields.io/badge/Live_Demo-Try_it_now-success?style=for-the-badge&logo=vercel" alt="Live Demo" />
   </a>
   <a href="https://www.loom.com/share/af873935c46040bd89556f537a15d41c">
     <img src="https://img.shields.io/badge/Video_Demo-Watch_on_Loom-625df5?style=for-the-badge&logo=loom&logoColor=white" alt="Loom Video Demo" />
   </a>
   <br />
-  <a href="https://midnight-legacy.vercel.app"><strong>Hosted on Vercel</strong></a> &nbsp;|&nbsp; 
+  <a href="https://midnight-seven-pi.vercel.app/"><strong>Hosted on Vercel</strong></a> &nbsp;|&nbsp; 
   <a href="https://www.loom.com/share/af873935c46040bd89556f537a15d41c"><strong>📺 Watch Demo Video</strong></a>
 </div>
 
@@ -55,9 +55,7 @@ The core logic of the Midnight Legacy protocol is deployed on the Midnight Netwo
 - **Explorer Link:** [View on Midnight Explorer](https://explorer.preview.midnight.network)
 
 ### Contract Address
-```text
-02008cfbfdce8b07cc5b4ebf2ff84976c6c21e64985220c91ab54ef390868846c483
-```
+> **`02008cfbfdce8b07cc5b4ebf2ff84976c6c21e64985220c91ab54ef390868846c483`**
 
 ---
 
