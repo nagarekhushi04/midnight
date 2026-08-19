@@ -12,11 +12,19 @@ interface WalletConnectProps {
 }
 
 const formatAddress = (addr: unknown): string => {
-  if (typeof addr === 'string' && addr.length > 0) {
-    if (addr.length <= 14) return addr;
-    return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
+  if (!addr) return '';
+  let str = '';
+  if (typeof addr === 'string') {
+    str = addr;
+  } else if (typeof addr === 'object' && addr !== null) {
+    if ('bech32' in addr) str = String((addr as any).bech32);
+    else if ('address' in addr) str = String((addr as any).address);
+    else if ('unshieldedAddress' in addr) str = String((addr as any).unshieldedAddress);
+    else if ('toString' in addr && typeof (addr as any).toString === 'function') str = (addr as any).toString();
   }
-  return '';
+  if (!str || str === 'Not Available' || str === '[object Object]') return 'mn1_wallet';
+  if (str.length <= 14) return str;
+  return `${str.slice(0, 6)}...${str.slice(-4)}`;
 };
 
 export const WalletConnect: React.FC<WalletConnectProps> = ({
@@ -54,7 +62,8 @@ export const WalletConnect: React.FC<WalletConnectProps> = ({
               padding: '8px 16px',
               fontSize: '12px',
               border: '1px solid var(--pure-white)',
-              background: 'transparent'
+              background: 'transparent',
+              cursor: 'pointer'
             }}
           >
             {formattedAddress} (DISCONNECT)
@@ -69,7 +78,8 @@ export const WalletConnect: React.FC<WalletConnectProps> = ({
               fontSize: '12px',
               background: 'var(--pure-white)',
               color: 'var(--solid-black)',
-              border: '1px solid var(--pure-white)'
+              border: '1px solid var(--pure-white)',
+              cursor: 'pointer'
             }}
           >
             {isConnecting ? 'CONNECTING...' : 'CONNECT WALLET'}
