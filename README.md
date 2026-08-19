@@ -4,6 +4,9 @@
   <img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
   <img src="https://img.shields.io/badge/Vite-B73BFE?style=for-the-badge&logo=vite&logoColor=FFD62E" alt="Vite" />
   <img src="https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel Deployment" />
+  <a href="https://github.com/nagarekhushi04/midnight/actions/workflows/ci.yml">
+    <img src="https://github.com/nagarekhushi04/midnight/actions/workflows/ci.yml/badge.svg" alt="CI/CD Status" />
+  </a>
 </div>
 
 <br />
@@ -268,21 +271,59 @@ VITE_PROOF_SERVER_URL=http://127.0.0.1:6300
 
 </details>
 
+<details open>
+<summary><b>LEVEL 3 REQUIREMENTS:</b></summary>
+
+- [x] **Midnight.js Privacy Model:** Meaningful ZK architecture separating public ledger state from private zero-knowledge witnesses.
+- [x] **Test Coverage:** Minimum 3 passing tests covering circuits, state transitions, and private state secrecy.
+- [x] **CI/CD Pipeline:** Functional GitHub Actions workflow (`.github/workflows/ci.yml`) with automated test execution and build verification.
+- [x] **Approved Idea:** Directly aligned with registered proposal from the approved hackathon idea list.
+- [x] **Git History:** 40+ meaningful commits showing iterative, transparent development.
+- [x] **Live Demo URL:** Deployed frontend connected to Midnight Preprod (`https://midnight-seven-pi.vercel.app/`).
+- [x] **Preprod Contract Address:** Live deployed instance (`02008cfbfdce8b07cc5b4ebf2ff84976c6c21e64985220c91ab54ef390868846c483`).
+- [x] **1-Minute Demo Video:** Concise video demonstrating Lace connection, ZK proof generation, and state updates (`https://www.loom.com/share/af873935c46040bd89556f537a15d41c`).
+- [x] **Privacy Model Breakdown:** Explicit documentation detailing what an observer CAN and CANNOT learn.
+
+</details>
+
+---
+
+## 🧪 Test Suite & Verification
+
+The repository includes comprehensive automated unit and circuit verification tests in `tests/Inheritance.test.ts`.
+
+```text
+khush@midnight:~/midnight-legacy$ npm test
+
+> midnight-legacy@1.0.0 test
+> tsx tests/Inheritance.test.ts
+
+🧪 Running Inheritance Contract Unit Tests...
+
+✅ Test 1 Passed: Circuit logic compiled and exported correctly.
+✅ Test 2 Passed: Initial state transitions defined.
+✅ Test 3 Passed: Private inputs (secretPasscode & beneficiaryAddr) are hidden from public ledger state.
+
+🎉 ALL 3 TESTS PASSED SUCCESSFULLY!
+```
+
 ---
 
 ## 🔒 Privacy Model & Architecture (Public State vs. Private Witness)
 
 Midnight Legacy strictly separates what is known to the network from what remains securely in the user's client.
 
-### On-Chain Ledger State (Public)
-- **Inactivity Timer & Timeout:** The exact block time of the last check-in and the timeout duration.
-- **Owner Public Key:** Identifies the creator of the contract.
-- **Encrypted Vault State:** The locked assets and encrypted beneficiary commitments (only accessible by the owner or the beneficiary with the correct private seed).
+### 👁️ What an Observer CAN Learn
+* **Public Contract State:** The current inactivity timer, timeout interval, and whether the inheritance vault has been claimed (`isClaimed`).
+* **On-Chain Timestamps:** The timestamp of the owner's last check-in (`lastCheckIn`).
+* **Transaction Hashes:** Cryptographic proof hashes and block inclusion metadata submitted to the Midnight network.
+* **Public Balance:** The on-chain asset balance held by the smart contract.
 
-### Client Private Witness (Private)
-- **Secret Seeds & Passcodes:** Hex passcodes required to generate the claim proof.
-- **Beneficiary Private Keys:** The unshielded identity of the inheritor.
-- **Proof Generation:** Occurs entirely locally. Only a Zero-Knowledge Proof (ZK-SNARK) is submitted on-chain, proving the beneficiary knows the passcode without ever exposing it.
+### 🛡️ What an Observer CANNOT Learn
+* **User Identities & Addresses:** The pre-designated beneficiary's unshielded address remains completely hidden until a valid claim circuit is executed.
+* **Secret Passcodes & Salts:** The private passcodes, seeds, and witnesses used to verify beneficiary authorization are NEVER published to the blockchain or logged.
+* **Private State Parameters:** Client-side proving parameters and witness assignments remain isolated in local browser memory.
+* **Zero-Knowledge Witness Data:** Intermediate circuit execution states and raw witness values are fully concealed inside the ZK-SNARK proof.
 
 ### Architecture Flow
 ```text
