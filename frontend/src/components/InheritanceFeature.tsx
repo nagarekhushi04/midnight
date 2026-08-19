@@ -55,10 +55,20 @@ export const InheritanceFeature: React.FC<InheritanceFeatureProps> = ({
 
   const publicDataProvider = indexerPublicDataProvider(indexerUrl, indexerWsUrl);
 
+  const getCleanAddress = (addr: string | null | undefined): string | null => {
+    if (!addr) return null;
+    let clean = addr.trim();
+    if (clean.startsWith('0x') || clean.startsWith('0X')) {
+      clean = clean.slice(2);
+    }
+    return clean;
+  };
+
   const fetchContractState = async () => {
-    if (!contractAddress) return;
+    const cleanAddress = getCleanAddress(contractAddress);
+    if (!cleanAddress) return;
     try {
-      const contractStateData = await publicDataProvider.queryContractState(contractAddress);
+      const contractStateData = await publicDataProvider.queryContractState(cleanAddress);
       if (contractStateData) {
         const ledgerState = Inheritance.ledger(contractStateData.data);
         setState({
@@ -77,11 +87,44 @@ export const InheritanceFeature: React.FC<InheritanceFeatureProps> = ({
   };
 
   useEffect(() => {
-    fetchContractState();
+    let isMounted = true;
+    
+    const loadState = async () => {
+      const cleanAddress = getCleanAddress(contractAddress);
+      if (!cleanAddress) return;
+      try {
+        const contractStateData = await publicDataProvider.queryContractState(cleanAddress);
+        if (isMounted) {
+          if (contractStateData) {
+            const ledgerState = Inheritance.ledger(contractStateData.data);
+            setState({
+              lastCheckIn: ledgerState.lastCheckIn.toString(),
+              timeout: ledgerState.timeout.toString(),
+              isClaimed: ledgerState.isClaimed,
+              finalBeneficiary: ledgerState.finalBeneficiary,
+              beneficiaryCommitment: ledgerState.beneficiaryCommitment,
+            });
+          } else {
+            setState(null);
+          }
+        }
+      } catch (err: any) {
+        if (isMounted) {
+          console.error('Error fetching state:', err);
+        }
+      }
+    };
+
+    loadState();
+
+    return () => {
+      isMounted = false;
+    };
   }, [contractAddress]);
 
   const connectToContract = async () => {
-    if (!wallet || !contractAddress) {
+    const cleanAddress = getCleanAddress(contractAddress);
+    if (!wallet || !cleanAddress) {
       throw new Error("Wallet not connected or contract address missing");
     }
 
@@ -116,7 +159,7 @@ export const InheritanceFeature: React.FC<InheritanceFeatureProps> = ({
 
     return findDeployedContract(providers, {
       compiledContract: compiledContract as any,
-      contractAddress,
+      contractAddress: cleanAddress,
       privateStateId: PRIVATE_STATE_ID,
       initialPrivateState: {},
     });

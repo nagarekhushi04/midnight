@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 
 declare global {
   interface Window {
@@ -22,8 +22,6 @@ export interface MidnightWalletConnection {
   submitTransaction?: (tx: any) => Promise<string>;
 }
 
-
-
 export function useMidnight() {
   const [wallet, setWallet] = useState<MidnightWalletConnection | null>(null);
   const [address, setAddress] = useState<string | null>(null);
@@ -31,7 +29,26 @@ export function useMidnight() {
   const [isConnecting, setIsConnecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const subscriptionRef = useRef<{ unsubscribe?: () => void } | null>(null);
   const expectedNetwork = import.meta.env.VITE_NETWORK || 'preview';
+
+  const clearSubscription = useCallback(() => {
+    if (subscriptionRef.current && typeof subscriptionRef.current.unsubscribe === 'function') {
+      try {
+        subscriptionRef.current.unsubscribe();
+      } catch (err) {
+        console.warn('Error unsubscribing from wallet state stream:', err);
+      }
+      subscriptionRef.current = null;
+    }
+  }, []);
+
+  // Cleanup subscription on unmount
+  useEffect(() => {
+    return () => {
+      clearSubscription();
+    };
+  }, [clearSubscription]);
 
   const clearError = useCallback(() => {
     setError(null);
@@ -40,6 +57,7 @@ export function useMidnight() {
   const connect = useCallback(async () => {
     setIsConnecting(true);
     setError(null);
+    clearSubscription();
 
     try {
       let targetWalletAPI: any = null;
@@ -66,7 +84,7 @@ export function useMidnight() {
         throw new Error('1AM / Midnight Wallet extension not detected. Please install the extension or enable Devnet mode.');
       }
 
-      // Midnight Lace uses .enable(), but fallback to .connect()
+      // Midnight Lace uses .enable(), fallback to .connect()
       let connection;
       if (typeof targetWalletAPI.enable === 'function') {
         connection = await targetWalletAPI.enable();
@@ -102,16 +120,22 @@ export function useMidnight() {
         const stateResult = connection.state();
         // If it looks like an RxJS observable
         if (stateResult && typeof stateResult.subscribe === 'function') {
-          stateResult.subscribe((s: any) => {
-            console.log('Wallet State update:', s);
-            if (s.networkId) setNetwork(s.networkId);
-            if (s.unshieldedAddress) setAddress(s.unshieldedAddress);
+          const sub = stateResult.subscribe({
+            next: (s: any) => {
+              console.log('Wallet State update:', s);
+              if (s?.networkId) setNetwork(s.networkId);
+              if (s?.unshieldedAddress) setAddress(s.unshieldedAddress);
+            },
+            error: (err: any) => {
+              console.warn('Wallet stream error:', err);
+            }
           });
+          subscriptionRef.current = sub;
         } else {
           // If state is just a Promise or object
           const resolvedState = await Promise.resolve(stateResult);
-          if (resolvedState.networkId) walletNetwork = resolvedState.networkId;
-          if (resolvedState.unshieldedAddress) unshieldedAddr = resolvedState.unshieldedAddress;
+          if (resolvedState?.networkId) walletNetwork = resolvedState.networkId;
+          if (resolvedState?.unshieldedAddress) unshieldedAddr = resolvedState.unshieldedAddress;
         }
       }
 
@@ -127,14 +151,15 @@ export function useMidnight() {
     } finally {
       setIsConnecting(false);
     }
-  }, [expectedNetwork]);
+  }, [expectedNetwork, clearSubscription]);
 
   const disconnect = useCallback(() => {
+    clearSubscription();
     setWallet(null);
     setAddress(null);
     setNetwork(null);
     setError(null);
-  }, []);
+  }, [clearSubscription]);
 
   return {
     wallet,
