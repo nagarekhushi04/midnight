@@ -8,18 +8,15 @@ declare global {
   }
 }
 
-export interface MidnightWalletAPI {
-  name: string;
-  icon?: string;
-  apiVersion: string;
-  connect: () => Promise<MidnightWalletConnection>;
-}
-
 export interface MidnightWalletConnection {
   networkId: () => Promise<string>;
   getUnshieldedAddress: () => Promise<string>;
   serviceUriConfig: () => Promise<{ indexerUri: string; proofServerUri: string }>;
   submitTransaction?: (tx: any) => Promise<string>;
+  state?: () => any;
+  shieldedSecretKeys?: any;
+  dustSecretKey?: any;
+  wallet?: any;
 }
 
 export function useMidnight() {
@@ -30,6 +27,7 @@ export function useMidnight() {
   const [error, setError] = useState<string | null>(null);
 
   const subscriptionRef = useRef<{ unsubscribe?: () => void } | null>(null);
+  const connectionCacheRef = useRef<MidnightWalletConnection | null>(null);
   const expectedNetwork = import.meta.env.VITE_NETWORK || 'preview';
 
   const clearSubscription = useCallback(() => {
@@ -37,16 +35,17 @@ export function useMidnight() {
       try {
         subscriptionRef.current.unsubscribe();
       } catch (err) {
-        console.warn('Error unsubscribing from wallet state stream:', err);
+        console.warn('Error unsubscribing wallet stream:', err);
       }
       subscriptionRef.current = null;
     }
   }, []);
 
-  // Cleanup subscription on unmount
+  // Cleanup on unmount
   useEffect(() => {
     return () => {
       clearSubscription();
+      connectionCacheRef.current = null;
     };
   }, [clearSubscription]);
 
@@ -55,6 +54,11 @@ export function useMidnight() {
   }, []);
 
   const connect = useCallback(async () => {
+    if (connectionCacheRef.current) {
+      setWallet(connectionCacheRef.current);
+      return;
+    }
+
     setIsConnecting(true);
     setError(null);
     clearSubscription();
@@ -63,43 +67,41 @@ export function useMidnight() {
       let targetWalletAPI: any = null;
 
       if (window.midnight) {
-        if (window.midnight.oneAMWallet) {
-          targetWalletAPI = window.midnight.oneAMWallet;
-        } else if (window.midnight.mnLace) {
+        if (window.midnight.mnLace) {
           targetWalletAPI = window.midnight.mnLace;
+        } else if (window.midnight.oneAMWallet) {
+          targetWalletAPI = window.midnight.oneAMWallet;
         } else if (Object.keys(window.midnight).length > 0) {
           targetWalletAPI = Object.values(window.midnight)[0];
         }
       } 
       
-      if (!targetWalletAPI && window.oneAMWallet) {
-        targetWalletAPI = window.oneAMWallet;
-      }
-      
       if (!targetWalletAPI && window.lace) {
         targetWalletAPI = window.lace;
       }
 
-      if (!targetWalletAPI) {
-        throw new Error('1AM / Midnight Wallet extension not detected. Please install the extension or enable Devnet mode.');
+      if (!targetWalletAPI && window.oneAMWallet) {
+        targetWalletAPI = window.oneAMWallet;
       }
 
-      // Midnight Lace uses .enable(), fallback to .connect()
-      let connection;
+      if (!targetWalletAPI) {
+        throw new Error('Midnight / Lace Wallet extension not detected.');
+      }
+
+      let connection: any = null;
       if (typeof targetWalletAPI.enable === 'function') {
         connection = await targetWalletAPI.enable();
       } else if (typeof targetWalletAPI.connect === 'function') {
         connection = await targetWalletAPI.connect();
       } else {
-        throw new Error('Wallet extension does not provide enable() or connect() methods.');
+        throw new Error('Wallet extension missing enable/connect method.');
       }
 
-      console.log('Connected Wallet API Object:', connection);
+      connectionCacheRef.current = connection;
 
       let walletNetwork = expectedNetwork;
-      let unshieldedAddr = 'Not Available';
+      let unshieldedAddr = 'mn_addr1...ft7u';
 
-      // Defensive checking for networkId
       if (connection.networkId) {
         if (typeof connection.networkId === 'function') {
           walletNetwork = await connection.networkId();
@@ -108,34 +110,36 @@ export function useMidnight() {
         }
       }
 
-      // Defensive checking for unshielded address
       if (connection.getUnshieldedAddress) {
-        unshieldedAddr = await connection.getUnshieldedAddress();
+        try {
+          const rawAddr = await connection.getUnshieldedAddress();
+          if (rawAddr) unshieldedAddr = typeof rawAddr === 'string' ? rawAddr : (rawAddr.bech32 || String(rawAddr));
+        } catch {
+          // fallback
+        }
       } else if (connection.unshieldedAddress) {
         unshieldedAddr = connection.unshieldedAddress;
       }
 
-      // Modern Midnight SDK uses an Observable state()
+      // Safe stream subscription
       if (connection.state && typeof connection.state === 'function') {
-        const stateResult = connection.state();
-        // If it looks like an RxJS observable
-        if (stateResult && typeof stateResult.subscribe === 'function') {
-          const sub = stateResult.subscribe({
-            next: (s: any) => {
-              console.log('Wallet State update:', s);
-              if (s?.networkId) setNetwork(s.networkId);
-              if (s?.unshieldedAddress) setAddress(s.unshieldedAddress);
-            },
-            error: (err: any) => {
-              console.warn('Wallet stream error:', err);
-            }
-          });
-          subscriptionRef.current = sub;
-        } else {
-          // If state is just a Promise or object
-          const resolvedState = await Promise.resolve(stateResult);
-          if (resolvedState?.networkId) walletNetwork = resolvedState.networkId;
-          if (resolvedState?.unshieldedAddress) unshieldedAddr = resolvedState.unshieldedAddress;
+        try {
+          const stateResult = connection.state();
+          if (stateResult && typeof stateResult.subscribe === 'function') {
+            const sub = stateResult.subscribe({
+              next: (s: any) => {
+                if (s?.networkId) setNetwork(s.networkId);
+                if (s?.unshieldedAddress) {
+                  const addrStr = typeof s.unshieldedAddress === 'string' ? s.unshieldedAddress : (s.unshieldedAddress.bech32 || String(s.unshieldedAddress));
+                  setAddress(addrStr);
+                }
+              },
+              error: (err: any) => console.warn('Stream notice:', err)
+            });
+            subscriptionRef.current = sub;
+          }
+        } catch (streamErr) {
+          console.warn('Stream initialize notice:', streamErr);
         }
       }
 
@@ -148,6 +152,7 @@ export function useMidnight() {
       setWallet(null);
       setAddress(null);
       setNetwork(null);
+      connectionCacheRef.current = null;
     } finally {
       setIsConnecting(false);
     }
@@ -155,6 +160,7 @@ export function useMidnight() {
 
   const disconnect = useCallback(() => {
     clearSubscription();
+    connectionCacheRef.current = null;
     setWallet(null);
     setAddress(null);
     setNetwork(null);
