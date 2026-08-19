@@ -15,12 +15,12 @@
   <a href="https://midnight-seven-pi.vercel.app/">
     <img src="https://img.shields.io/badge/Live_Demo-Try_it_now-success?style=for-the-badge&logo=vercel" alt="Live Demo" />
   </a>
-  <a href="https://www.loom.com/share/af873935c46040bd89556f537a15d41c">
+  <a href="https://www.loom.com/share/10214731f64c4035b750c5c755c1e3d1">
     <img src="https://img.shields.io/badge/Video_Demo-Watch_on_Loom-625df5?style=for-the-badge&logo=loom&logoColor=white" alt="Loom Video Demo" />
   </a>
   <br />
   <a href="https://midnight-seven-pi.vercel.app/"><strong>Hosted on Vercel</strong></a> &nbsp;|&nbsp; 
-  <a href="https://www.loom.com/share/af873935c46040bd89556f537a15d41c"><strong>📺 Watch Demo Video</strong></a>
+  <a href="https://www.loom.com/share/10214731f64c4035b750c5c755c1e3d1"><strong>📺 Watch Demo Video</strong></a>
 </div>
 
 <br />
@@ -281,7 +281,7 @@ VITE_PROOF_SERVER_URL=http://127.0.0.1:6300
 - [x] **Git History:** 40+ meaningful commits showing iterative, transparent development.
 - [x] **Live Demo URL:** Deployed frontend connected to Midnight Preprod (`https://midnight-seven-pi.vercel.app/`).
 - [x] **Preprod Contract Address:** Live deployed instance (`02008cfbfdce8b07cc5b4ebf2ff84976c6c21e64985220c91ab54ef390868846c483`).
-- [x] **1-Minute Demo Video:** Concise video demonstrating Lace connection, ZK proof generation, and state updates (`https://www.loom.com/share/af873935c46040bd89556f537a15d41c`).
+- [x] **1-Minute Demo Video:** Concise video demonstrating Lace connection, ZK proof generation, and state updates (`https://www.loom.com/share/10214731f64c4035b750c5c755c1e3d1`).
 - [x] **Privacy Model Breakdown:** Explicit documentation detailing what an observer CAN and CANNOT learn.
 
 </details>
