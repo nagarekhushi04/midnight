@@ -55,20 +55,33 @@ export const InheritanceFeature: React.FC<InheritanceFeatureProps> = ({
 
   const publicDataProvider = indexerPublicDataProvider(indexerUrl, indexerWsUrl);
 
-  const getCleanAddress = (addr: string | null | undefined): string | null => {
+  const normalizeContractAddress = (addr: string | null | undefined): string | null => {
     if (!addr) return null;
     let clean = addr.trim();
+    
+    // 1. Strip '0x' or '0X' prefix
     if (clean.startsWith('0x') || clean.startsWith('0X')) {
       clean = clean.slice(2);
     }
+
+    // 2. If 68 hex characters (34 bytes), strip leading 4-char (2-byte) prefix (e.g. '0200') to get 32-byte (64 hex char) address
+    if (clean.length === 68) {
+      clean = clean.slice(4);
+    }
+
+    // 3. If raw 32-char string, convert to 64 hex characters
+    if (clean.length === 32) {
+      clean = Array.from(clean).map(c => c.charCodeAt(0).toString(16).padStart(2, '0')).join('');
+    }
+
     return clean;
   };
 
   const fetchContractState = async () => {
-    const cleanAddress = getCleanAddress(contractAddress);
-    if (!cleanAddress) return;
+    const validAddress = normalizeContractAddress(contractAddress);
+    if (!validAddress) return;
     try {
-      const contractStateData = await publicDataProvider.queryContractState(cleanAddress);
+      const contractStateData = await publicDataProvider.queryContractState(validAddress);
       if (contractStateData) {
         const ledgerState = Inheritance.ledger(contractStateData.data);
         setState({
@@ -90,10 +103,10 @@ export const InheritanceFeature: React.FC<InheritanceFeatureProps> = ({
     let isMounted = true;
     
     const loadState = async () => {
-      const cleanAddress = getCleanAddress(contractAddress);
-      if (!cleanAddress) return;
+      const validAddress = normalizeContractAddress(contractAddress);
+      if (!validAddress) return;
       try {
-        const contractStateData = await publicDataProvider.queryContractState(cleanAddress);
+        const contractStateData = await publicDataProvider.queryContractState(validAddress);
         if (isMounted) {
           if (contractStateData) {
             const ledgerState = Inheritance.ledger(contractStateData.data);
@@ -123,8 +136,8 @@ export const InheritanceFeature: React.FC<InheritanceFeatureProps> = ({
   }, [contractAddress]);
 
   const connectToContract = async () => {
-    const cleanAddress = getCleanAddress(contractAddress);
-    if (!wallet || !cleanAddress) {
+    const validAddress = normalizeContractAddress(contractAddress);
+    if (!wallet || !validAddress) {
       throw new Error("Wallet not connected or contract address missing");
     }
 
@@ -159,7 +172,7 @@ export const InheritanceFeature: React.FC<InheritanceFeatureProps> = ({
 
     return findDeployedContract(providers, {
       compiledContract: compiledContract as any,
-      contractAddress: cleanAddress,
+      contractAddress: validAddress,
       privateStateId: PRIVATE_STATE_ID,
       initialPrivateState: {},
     });
