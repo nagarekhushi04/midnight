@@ -341,3 +341,25 @@ Midnight Legacy strictly separates what is known to the network from what remain
        ▼
 [Midnight Node / Devnet]
 ```
+
+---
+
+## 🛠️ Troubleshooting & Circuit Execution Guide
+
+If you experience unexpected behavior or errors during `checkIn` or `claim` circuit interactions, refer to these common Midnight.js and Compact execution resolutions:
+
+### 1. `Assertion failed` (Compact Logic Rejection)
+* **Cause:** Trying to check-in after the vault is already claimed, attempting to claim before the inactivity timeout has elapsed, or supplying an incorrect `secretPasscode`.
+* **Resolution:** Verify on-chain state with `Refresh State` in the UI to ensure the timeout condition `currentTime >= (lastCheckIn + timeout)` is satisfied and that the provided beneficiary credentials match the initial commitment.
+
+### 2. `Failed to fetch proof` / Proof Server Unreachable
+* **Cause:** The client-side proof generation attempted to contact a local Proof Server (`http://127.0.0.1:6300`) that is offline or has mismatched `.zkir`/`.prover` artifact paths.
+* **Resolution:** Ensure the Midnight Proof Server container is running (`docker run -p 6300:6300 midnightntwrk/proof-server`) or verify that browser-based proving assets in `/managed/Inheritance` are accessible.
+
+### 3. Private Witness State & Disclose Guarantees
+* **Cause:** In Compact, witness data is strictly private by default. Any variable that needs to be recorded to the ledger state or verified across transactions must be explicitly handled with `disclose()`.
+* **Resolution:** Midnight Legacy explicitly manages `disclose(currentTime)` and `disclose(beneficiaryAddr)` in the smart contract while keeping secret passcodes masked inside the zero-knowledge circuit.
+
+### 4. Insufficient DUST / Wallet Balancing Failure
+* **Cause:** Midnight transactions require DUST tokens to balance fees. If the wallet balance is zero, `balanceTx` rejects before broadcasting.
+* **Resolution:** Fund the connected Lace or 1AM Wallet via the Midnight Preprod Faucet and ensure the wallet extension is connected to the matching network ID (`preview`).
