@@ -147,7 +147,7 @@ export function App() {
           <button 
             onClick={() => {
               if (!address || !isWalletDetected) {
-                alert(!isWalletDetected ? 'Please install 1AM Wallet to continue.' : 'Wallet disconnected. Please connect 1AM Wallet first.');
+                alert('Please connect your Midnight-compatible wallet (1AM or OneKey) first.');
               } else {
                 window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
               }

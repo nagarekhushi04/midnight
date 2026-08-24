@@ -44,15 +44,16 @@ export function useMidnight() {
     }
   }, []);
 
-  // Polling for extension injection on load
+  // Polling for extension injection on load (up to 3 seconds)
   useEffect(() => {
     let attempts = 0;
     const checkWallet = setInterval(() => {
       attempts++;
-      if (window.midnight && window.midnight.mnLace) {
+      const midnight = (window as any).midnight;
+      if (midnight && (midnight.mnLace || midnight.oneKey || typeof midnight.enable === 'function')) {
         setIsWalletDetected(true);
         clearInterval(checkWallet);
-      } else if (attempts >= 10) {
+      } else if (attempts >= 15) {
         clearInterval(checkWallet);
       }
     }, 200);
@@ -82,11 +83,18 @@ export function useMidnight() {
     clearSubscription();
 
     try {
+      const getWalletProvider = () => {
+        const midnight = (window as any).midnight;
+        if (!midnight) return null;
+        return midnight.mnLace || midnight.oneKey || (typeof midnight.enable === 'function' ? midnight : null);
+      };
+
       let targetWalletAPI: any = null;
 
-      for (let i = 0; i < 10; i++) {
-        if (window.midnight && window.midnight.mnLace) {
-          targetWalletAPI = window.midnight.mnLace;
+      for (let i = 0; i < 15; i++) {
+        const provider = getWalletProvider();
+        if (provider) {
+          targetWalletAPI = provider;
           break;
         }
         await new Promise(r => setTimeout(r, 200));
@@ -94,7 +102,7 @@ export function useMidnight() {
 
       if (!targetWalletAPI) {
         setIsWalletDetected(false);
-        throw new Error('1AM / Lace Wallet extension not detected. Please ensure the extension is installed, enabled, and unlocked.');
+        throw new Error('Wallet extension not detected. Please ensure your Midnight-compatible wallet (1AM / Lace / OneKey) is installed, enabled, and unlocked.');
       } else {
         setIsWalletDetected(true);
       }

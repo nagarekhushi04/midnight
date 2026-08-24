@@ -73,7 +73,7 @@ export const WalletConnect: React.FC<WalletConnectProps> = ({
         ) : (
           <button
             onClick={onConnect}
-            disabled={isConnecting || !isWalletDetected}
+            disabled={isConnecting}
             className="brutalist-button"
             style={{
               padding: '8px 16px',
@@ -81,11 +81,10 @@ export const WalletConnect: React.FC<WalletConnectProps> = ({
               background: 'var(--pure-white)',
               color: 'var(--solid-black)',
               border: '1px solid var(--pure-white)',
-              cursor: isWalletDetected ? 'pointer' : 'not-allowed',
-              opacity: isWalletDetected ? 1 : 0.7
+              cursor: 'pointer',
             }}
           >
-            {!isWalletDetected ? 'INSTALL/UNLOCK 1AM WALLET' : isConnecting ? 'CONNECTING...' : 'CONNECT WALLET'}
+            {isConnecting ? 'CONNECTING...' : 'CONNECT WALLET'}
           </button>
         )}
       </div>
