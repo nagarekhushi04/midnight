@@ -6,6 +6,7 @@ interface WalletConnectProps {
   expectedNetwork: string;
   isConnecting: boolean;
   error: string | null;
+  isWalletDetected: boolean;
   onConnect: () => void;
   onDisconnect: () => void;
   onClearError: () => void;
@@ -33,6 +34,7 @@ export const WalletConnect: React.FC<WalletConnectProps> = ({
   expectedNetwork,
   isConnecting,
   error,
+  isWalletDetected,
   onConnect,
   onDisconnect,
   onClearError,
@@ -71,7 +73,7 @@ export const WalletConnect: React.FC<WalletConnectProps> = ({
         ) : (
           <button
             onClick={onConnect}
-            disabled={isConnecting}
+            disabled={isConnecting || !isWalletDetected}
             className="brutalist-button"
             style={{
               padding: '8px 16px',
@@ -79,10 +81,11 @@ export const WalletConnect: React.FC<WalletConnectProps> = ({
               background: 'var(--pure-white)',
               color: 'var(--solid-black)',
               border: '1px solid var(--pure-white)',
-              cursor: 'pointer'
+              cursor: isWalletDetected ? 'pointer' : 'not-allowed',
+              opacity: isWalletDetected ? 1 : 0.7
             }}
           >
-            {isConnecting ? 'CONNECTING...' : 'CONNECT WALLET'}
+            {!isWalletDetected ? 'INSTALL/UNLOCK 1AM WALLET' : isConnecting ? 'CONNECTING...' : 'CONNECT WALLET'}
           </button>
         )}
       </div>

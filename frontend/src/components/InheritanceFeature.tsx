@@ -44,12 +44,18 @@ interface InheritanceFeatureProps {
   contractAddress: string | null;
   walletConnected?: boolean;
   wallet?: any;
+  isWalletDetected?: boolean;
+  indexerUri?: string | null;
+  proofServerUri?: string | null;
 }
 
 export const InheritanceFeature: React.FC<InheritanceFeatureProps> = ({
   contractAddress,
   walletConnected: _walletConnected,
   wallet,
+  isWalletDetected,
+  indexerUri,
+  proofServerUri,
 }) => {
   const [state, setState] = useState<ContractState>(INITIAL_DEFAULT_STATE);
   const [isProving, setIsProving] = useState(false);
@@ -69,8 +75,8 @@ export const InheritanceFeature: React.FC<InheritanceFeatureProps> = ({
   const [timeRemaining, setTimeRemaining] = useState<string>('23h 30m 00s');
   const [progressPercent, setProgressPercent] = useState<number>(2);
 
-  const indexerUrl = import.meta.env.VITE_INDEXER_URL || 'https://indexer.preview.midnight.network/api/v4/graphql';
-  const indexerWsUrl = import.meta.env.VITE_INDEXER_WS_URL || 'wss://indexer.preview.midnight.network/api/v4/graphql/ws';
+  const indexerUrl = indexerUri || import.meta.env.VITE_INDEXER_URL || 'https://indexer.preview.midnight.network/api/v4/graphql';
+  const indexerWsUrl = indexerUri ? indexerUri.replace(/^http/, 'ws').replace(/\/$/, '') + '/ws' : (import.meta.env.VITE_INDEXER_WS_URL || 'wss://indexer.preview.midnight.network/api/v4/graphql/ws');
 
   const publicDataProvider = indexerPublicDataProvider(indexerUrl, indexerWsUrl);
 
@@ -101,6 +107,11 @@ export const InheritanceFeature: React.FC<InheritanceFeatureProps> = ({
   }, [state.lastCheckIn, state.timeout]);
 
   const fetchContractState = async () => {
+    if (!_walletConnected || !wallet) {
+      setActionError(!isWalletDetected ? 'Please install 1AM Wallet to continue.' : 'Wallet disconnected. Please connect 1AM Wallet first.');
+      return;
+    }
+    setActionError(null);
     setIsRefreshing(true);
     const validAddress = formatMidnightAddress(contractAddress);
     try {
@@ -180,7 +191,7 @@ export const InheritanceFeature: React.FC<InheritanceFeatureProps> = ({
       privateStateProvider: getMemoryPrivateStateProvider(),
       publicDataProvider,
       zkConfigProvider,
-      proofProvider: httpClientProofProvider('http://127.0.0.1:6300', zkConfigProvider),
+      proofProvider: httpClientProofProvider(proofServerUri || 'http://127.0.0.1:6300', zkConfigProvider),
       walletProvider: {
         getCoinPublicKey: () => {
           if (wallet?.shieldedSecretKeys?.coinPublicKey) return wallet.shieldedSecretKeys.coinPublicKey;
@@ -234,6 +245,10 @@ export const InheritanceFeature: React.FC<InheritanceFeatureProps> = ({
 
   const handleCheckIn = async (e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
+    if (!_walletConnected || !wallet) {
+      setActionError(!isWalletDetected ? 'Please install 1AM Wallet to continue.' : 'Wallet disconnected. Please connect 1AM Wallet first.');
+      return;
+    }
     setActionError(null);
     setTxResult(null);
     setIsProving(true);
@@ -284,6 +299,10 @@ export const InheritanceFeature: React.FC<InheritanceFeatureProps> = ({
 
   const handleClaim = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!_walletConnected || !wallet) {
+      setActionError(!isWalletDetected ? 'Please install 1AM Wallet to continue.' : 'Wallet disconnected. Please connect 1AM Wallet first.');
+      return;
+    }
     if (!beneficiaryAddrInput || !secretPasscodeInput) {
       setActionError('Please fill in both beneficiary address and secret passcode.');
       return;

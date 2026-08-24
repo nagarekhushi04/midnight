@@ -7,9 +7,11 @@ export function formatMidnightAddress(address: string | null | undefined): strin
     cleanAddr = cleanAddr.substring(2);
   }
   
-  if (cleanAddr.length !== 64) {
-    console.warn(`Invalid Midnight address length: expected 64, got ${cleanAddr.length}`);
+  if (cleanAddr.length > 64) {
+    cleanAddr = cleanAddr.slice(-64);
+  } else if (cleanAddr.length < 64) {
+    cleanAddr = cleanAddr.padStart(64, '0');
   }
-  
+
   return cleanAddr;
 }

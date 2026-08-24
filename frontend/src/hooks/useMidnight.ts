@@ -25,6 +25,9 @@ export function useMidnight() {
   const [network, setNetwork] = useState<string | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isWalletDetected, setIsWalletDetected] = useState<boolean>(false);
+  const [indexerUri, setIndexerUri] = useState<string | null>(null);
+  const [proofServerUri, setProofServerUri] = useState<string | null>(null);
 
   const subscriptionRef = useRef<{ unsubscribe?: () => void } | null>(null);
   const connectionCacheRef = useRef<MidnightWalletConnection | null>(null);
@@ -39,6 +42,21 @@ export function useMidnight() {
       }
       subscriptionRef.current = null;
     }
+  }, []);
+
+  // Polling for extension injection on load
+  useEffect(() => {
+    let attempts = 0;
+    const checkWallet = setInterval(() => {
+      attempts++;
+      if (window.midnight && window.midnight.mnLace) {
+        setIsWalletDetected(true);
+        clearInterval(checkWallet);
+      } else if (attempts >= 10) {
+        clearInterval(checkWallet);
+      }
+    }, 200);
+    return () => clearInterval(checkWallet);
   }, []);
 
   // Cleanup on unmount
@@ -66,12 +84,19 @@ export function useMidnight() {
     try {
       let targetWalletAPI: any = null;
 
-      if (window.midnight && window.midnight.mnLace) {
-        targetWalletAPI = window.midnight.mnLace;
+      for (let i = 0; i < 10; i++) {
+        if (window.midnight && window.midnight.mnLace) {
+          targetWalletAPI = window.midnight.mnLace;
+          break;
+        }
+        await new Promise(r => setTimeout(r, 200));
       }
 
       if (!targetWalletAPI) {
-        throw new Error('Midnight / 1AM / Lace Wallet extension not detected.');
+        setIsWalletDetected(false);
+        throw new Error('1AM / Lace Wallet extension not detected. Please ensure the extension is installed, enabled, and unlocked.');
+      } else {
+        setIsWalletDetected(true);
       }
 
       const connection = await targetWalletAPI.enable();
@@ -83,8 +108,10 @@ export function useMidnight() {
       try {
         if (typeof targetWalletAPI.getConfiguration === 'function') {
           const config = await targetWalletAPI.getConfiguration();
-          if (config && config.networkId) {
-            walletNetwork = config.networkId;
+          if (config) {
+            if (config.networkId) walletNetwork = config.networkId;
+            if (config.indexerUri) setIndexerUri(config.indexerUri);
+            if (config.proofServerUri) setProofServerUri(config.proofServerUri);
           }
         }
       } catch (err) {
@@ -164,5 +191,8 @@ export function useMidnight() {
     disconnect,
     clearError,
     expectedNetwork,
+    isWalletDetected,
+    indexerUri,
+    proofServerUri,
   };
 }

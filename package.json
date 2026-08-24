@@ -14,7 +14,12 @@
     "frontend:dev": "npm run --prefix frontend dev",
     "frontend:build": "npm run --prefix frontend build"
   },
-  "keywords": ["midnight", "privacy", "inheritance", "zero-knowledge"],
+  "keywords": [
+    "midnight",
+    "privacy",
+    "inheritance",
+    "zero-knowledge"
+  ],
   "author": "",
   "license": "MIT",
   "dependencies": {
@@ -38,6 +43,7 @@
   "devDependencies": {
     "@types/node": "^22.0.0",
     "@types/ws": "^8.18.1",
+    "puppeteer": "^25.8.0",
     "tsx": "^4.23.1",
     "typescript": "^5.0.0",
     "vitest": "^1.6.0"

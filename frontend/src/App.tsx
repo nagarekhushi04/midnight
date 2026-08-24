@@ -15,6 +15,9 @@ export function App() {
     disconnect,
     clearError,
     wallet,
+    isWalletDetected,
+    indexerUri,
+    proofServerUri,
   } = useMidnight();
 
   const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS || null;
@@ -55,6 +58,7 @@ export function App() {
             expectedNetwork={expectedNetwork}
             isConnecting={isConnecting}
             error={error}
+            isWalletDetected={isWalletDetected}
             onConnect={connect}
             onDisconnect={disconnect}
             onClearError={clearError}
@@ -130,6 +134,9 @@ export function App() {
           contractAddress={contractAddress}
           walletConnected={!!address}
           wallet={wallet}
+          isWalletDetected={isWalletDetected}
+          indexerUri={indexerUri}
+          proofServerUri={proofServerUri}
         />
       </main>
 
@@ -137,14 +144,24 @@ export function App() {
       <div style={{ backgroundColor: 'var(--brand-orange)', color: 'var(--solid-black)', paddingTop: '120px' }}>
         <div style={{ textAlign: 'center', marginBottom: '80px', padding: '0 24px' }}>
           <h1 style={{ fontSize: '12vw', marginBottom: '40px' }}>PROTECT IT ALL</h1>
-          <button className="brutalist-button" style={{ 
-            fontSize: '24px', 
-            padding: '24px 64px', 
-            background: 'var(--solid-black)', 
-            color: 'var(--pure-white)', 
-            border: 'none',
-            boxShadow: '0 10px 30px rgba(0,0,0,0.3)'
-          }}>
+          <button 
+            onClick={() => {
+              if (!address || !isWalletDetected) {
+                alert(!isWalletDetected ? 'Please install 1AM Wallet to continue.' : 'Wallet disconnected. Please connect 1AM Wallet first.');
+              } else {
+                window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+              }
+            }}
+            className="brutalist-button" 
+            style={{ 
+              fontSize: '24px', 
+              padding: '24px 64px', 
+              background: 'var(--solid-black)', 
+              color: 'var(--pure-white)', 
+              border: 'none',
+              boxShadow: '0 10px 30px rgba(0,0,0,0.3)'
+            }}
+          >
             START NOW
           </button>
         </div>
