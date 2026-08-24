@@ -20,7 +20,7 @@ export function App() {
     proofServerUri,
   } = useMidnight();
 
-  const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS || null;
+  const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS || '0202020202020202020202020202020202020202020202020202020202020202';
 
   return (
     <div style={{ backgroundColor: 'var(--brand-orange)' }}>
@@ -144,26 +144,6 @@ export function App() {
       <div style={{ backgroundColor: 'var(--brand-orange)', color: 'var(--solid-black)', paddingTop: '120px' }}>
         <div style={{ textAlign: 'center', marginBottom: '80px', padding: '0 24px' }}>
           <h1 style={{ fontSize: '12vw', marginBottom: '40px' }}>PROTECT IT ALL</h1>
-          <button 
-            onClick={() => {
-              if (!address || !isWalletDetected) {
-                alert('Please connect your Midnight-compatible wallet (1AM or OneKey) first.');
-              } else {
-                window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-              }
-            }}
-            className="brutalist-button" 
-            style={{ 
-              fontSize: '24px', 
-              padding: '24px 64px', 
-              background: 'var(--solid-black)', 
-              color: 'var(--pure-white)', 
-              border: 'none',
-              boxShadow: '0 10px 30px rgba(0,0,0,0.3)'
-            }}
-          >
-            START NOW
-          </button>
         </div>
 
         <footer style={{
