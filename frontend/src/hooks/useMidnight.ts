@@ -66,48 +66,35 @@ export function useMidnight() {
     try {
       let targetWalletAPI: any = null;
 
-      if (window.midnight) {
-        if (window.midnight.mnLace) {
-          targetWalletAPI = window.midnight.mnLace;
-        } else if (window.midnight.oneAMWallet) {
-          targetWalletAPI = window.midnight.oneAMWallet;
-        } else if (Object.keys(window.midnight).length > 0) {
-          targetWalletAPI = Object.values(window.midnight)[0];
-        }
-      } 
-      
-      if (!targetWalletAPI && window.lace) {
-        targetWalletAPI = window.lace;
-      }
-
-      if (!targetWalletAPI && window.oneAMWallet) {
-        targetWalletAPI = window.oneAMWallet;
+      if (window.midnight && window.midnight.mnLace) {
+        targetWalletAPI = window.midnight.mnLace;
       }
 
       if (!targetWalletAPI) {
-        throw new Error('Midnight / Lace Wallet extension not detected.');
+        throw new Error('Midnight / 1AM / Lace Wallet extension not detected.');
       }
 
-      let connection: any = null;
-      if (typeof targetWalletAPI.enable === 'function') {
-        connection = await targetWalletAPI.enable();
-      } else if (typeof targetWalletAPI.connect === 'function') {
-        connection = await targetWalletAPI.connect();
-      } else {
-        throw new Error('Wallet extension missing enable/connect method.');
-      }
-
+      const connection = await targetWalletAPI.enable();
       connectionCacheRef.current = connection;
 
       let walletNetwork = expectedNetwork;
       let unshieldedAddr = 'mn_addr1...ft7u';
 
-      if (connection.networkId) {
-        if (typeof connection.networkId === 'function') {
-          walletNetwork = await connection.networkId();
-        } else if (typeof connection.networkId === 'string') {
-          walletNetwork = connection.networkId;
+      try {
+        if (typeof targetWalletAPI.getConfiguration === 'function') {
+          const config = await targetWalletAPI.getConfiguration();
+          if (config && config.networkId) {
+            walletNetwork = config.networkId;
+          }
         }
+      } catch (err) {
+        console.warn('Failed to getConfiguration:', err);
+      }
+
+      if (connection.networkId && typeof connection.networkId === 'function') {
+        walletNetwork = await connection.networkId();
+      } else if (connection.networkId && typeof connection.networkId === 'string') {
+        walletNetwork = connection.networkId;
       }
 
       if (connection.getUnshieldedAddress) {

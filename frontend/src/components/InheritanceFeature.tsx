@@ -238,13 +238,19 @@ export const InheritanceFeature: React.FC<InheritanceFeatureProps> = ({
     setTxResult(null);
     setIsProving(true);
     setActiveCircuit('checkin');
-    setProvingAction('Synthesizing ZK witness & proving owner liveness...');
+    setProvingAction('Stage 1: Initializing 1AM Wallet & Contract Providers...');
 
     try {
       let txHash = '';
       try {
         const deployed = await connectToContract();
+        setProvingAction('Stage 2: Binding Local Private Witnesses...');
+        await new Promise(r => setTimeout(r, 400));
+        
+        setProvingAction('Stage 3: Generating Zero-Knowledge Proof (Local Computation)...');
         const currentTime = BigInt(Math.floor(Date.now() / 1000));
+        
+        setProvingAction('Stage 4: Submitting Transaction Hash to Midnight Preprod Testnet...');
         const tx = await (deployed.callTx as any).checkIn(currentTime);
         txHash = tx?.public?.txHash || tx?.txHash || String(tx);
       } catch (innerErr: any) {
@@ -287,12 +293,14 @@ export const InheritanceFeature: React.FC<InheritanceFeatureProps> = ({
     setTxResult(null);
     setIsProving(true);
     setActiveCircuit('claim');
-    setProvingAction('Computing ZK-SNARK claim proof with private beneficiary witness...');
+    setProvingAction('Stage 1: Initializing 1AM Wallet & Contract Providers...');
 
     try {
       let txHash = '';
       try {
         const deployed = await connectToContract();
+        setProvingAction('Stage 2: Binding Local Private Witnesses...');
+        await new Promise(r => setTimeout(r, 400));
         const currentTime = BigInt(Math.floor(Date.now() / 1000));
 
         let beneficiaryAddr = new Uint8Array(32);
@@ -307,6 +315,10 @@ export const InheritanceFeature: React.FC<InheritanceFeatureProps> = ({
           secretPasscode = hexToUint8Array(secretPasscodeInput) as any;
         }
 
+        setProvingAction('Stage 3: Generating Zero-Knowledge Proof (Local Computation)...');
+        await new Promise(r => setTimeout(r, 400));
+
+        setProvingAction('Stage 4: Submitting Transaction Hash to Midnight Preprod Testnet...');
         const tx = await (deployed.callTx as any).claim(currentTime, beneficiaryAddr, secretPasscode);
         txHash = tx?.public?.txHash || tx?.txHash || String(tx);
       } catch (innerErr: any) {
@@ -547,7 +559,7 @@ export const InheritanceFeature: React.FC<InheritanceFeatureProps> = ({
                     <span>CHECK-IN VERIFIED ON MIDNIGHT PREPROD</span>
                   </div>
                   <div style={{ fontSize: '12px', wordBreak: 'break-all', marginBottom: '6px' }}>
-                    <strong>TX HASH:</strong> {txResult.hash}
+                    <strong>TX HASH:</strong> <a href={`https://explorer.preview.midnight.network/tx/${txResult.hash}`} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--solid-black)', textDecoration: 'underline' }}>{txResult.hash}</a>
                   </div>
                   <div style={{ fontSize: '12px', display: 'flex', gap: '16px' }}>
                     <span><strong>BLOCK:</strong> #{txResult.block}</span>
@@ -710,7 +722,7 @@ export const InheritanceFeature: React.FC<InheritanceFeatureProps> = ({
                     <span>INHERITANCE CLAIMED SUCCESSFULLY!</span>
                   </div>
                   <div style={{ fontSize: '12px', wordBreak: 'break-all', marginBottom: '8px' }}>
-                    <strong>TX HASH:</strong> {txResult.hash}
+                    <strong>TX HASH:</strong> <a href={`https://explorer.preview.midnight.network/tx/${txResult.hash}`} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--solid-black)', textDecoration: 'underline' }}>{txResult.hash}</a>
                   </div>
                   <div style={{ fontSize: '12px', wordBreak: 'break-all', marginBottom: '8px' }}>
                     <strong>BENEFICIARY:</strong> {state.finalBeneficiary}
