@@ -128,7 +128,7 @@ export function useMidnight() {
                   proofServerUri: 'http://127.0.0.1:6300'
                 };
               },
-              submitTransaction: async (tx: any) => 'mock-tx-hash-12345'
+              submitTransaction: async (_tx: any) => 'mock-tx-hash-12345'
             };
           }
         };

@@ -58,7 +58,6 @@ export function App() {
             expectedNetwork={expectedNetwork}
             isConnecting={isConnecting}
             error={error}
-            isWalletDetected={isWalletDetected}
             onConnect={connect}
             onDisconnect={disconnect}
             onClearError={clearError}

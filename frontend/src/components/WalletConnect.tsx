@@ -6,7 +6,7 @@ interface WalletConnectProps {
   expectedNetwork: string;
   isConnecting: boolean;
   error: string | null;
-  isWalletDetected: boolean;
+
   onConnect: () => void;
   onDisconnect: () => void;
   onClearError: () => void;
@@ -34,7 +34,7 @@ export const WalletConnect: React.FC<WalletConnectProps> = ({
   expectedNetwork,
   isConnecting,
   error,
-  isWalletDetected,
+
   onConnect,
   onDisconnect,
   onClearError,
