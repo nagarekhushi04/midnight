@@ -25,7 +25,7 @@ jobs:
         run: npm ci || npm install
 
       - name: Compile Compact Contracts
-        run: npm run compile
+        run: bash compile.sh
 
       - name: Run Midnight Contract Unit Tests
         run: npm test
